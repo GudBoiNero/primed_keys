@@ -4,8 +4,9 @@ import "./App.scss";
 function App() {
 
   const macroUndo = () => {
-    invoke("macro_undo").then(() => {
+    invoke("macro_undo").then(result => {
       console.log("macro_undo: successfully invoked. Did it actually undo?")
+      console.log(`macro_undo: ${result}`)
     }).catch(() => {
       console.log("macro_undo: failed to invoke!")
     })
