@@ -9,14 +9,14 @@ use windows::Win32::{
     UI::WindowsAndMessaging::{GetForegroundWindow, GetWindowTextA},
 };
 
-struct AppState {
+struct App {
     win_last: Mutex<HWND>,
     win_last_name: Mutex<String>,
 }
 
 // Learn more about Tauri commands at https://tauri.app/v1/guides/features/command
 #[tauri::command]
-fn macro_undo(app: State<AppState>) -> Result<(String, String), ()> {
+fn macro_undo(app: State<App>) -> Result<(String, String), ()> {
     let mut win_last = app.win_last.lock().unwrap();
     let mut win_last_name = app.win_last_name.lock().unwrap();
     let last_name = win_last_name.clone();
@@ -37,7 +37,7 @@ fn macro_undo(app: State<AppState>) -> Result<(String, String), ()> {
 }
 
 fn main() {
-    let app = AppState {
+    let app = App {
         win_last: Mutex::new(HWND(0)),
         win_last_name: Mutex::new("".to_owned()),
     };
