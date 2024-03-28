@@ -9,14 +9,15 @@ use windows::Win32::{
     UI::WindowsAndMessaging::{GetForegroundWindow, GetWindowTextA},
 };
 
-struct AppState(Mutex<App>);
-struct App {}
+pub struct App {}
 
 impl App {
     pub fn new() -> Self {
         Self {}
     }
 }
+
+pub struct AppState(pub Mutex<App>);
 
 // Learn more about Tauri commands at https://tauri.app/v1/guides/features/command
 #[tauri::command]
