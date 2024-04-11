@@ -7,7 +7,7 @@ use std::{
     thread,
 };
 
-use tauri::{Runtime, State};
+use tauri::{window, Manager, Runtime, State};
 use windows::Win32::{
     Foundation::HWND,
     UI::WindowsAndMessaging::{GetForegroundWindow, GetWindowTextA, GetWindowThreadProcessId},
@@ -51,6 +51,7 @@ fn init<R: Runtime>(window: tauri::Window<R>, state: State<'_, AppState>) -> Res
     if init_lock.initialized {
         return Err("App already initialized.".to_owned());
     } else {
+        init_lock.app_hwnd = HWND(window.hwnd().unwrap().0);
         init_lock.initialized = true;
     }
 
@@ -81,7 +82,10 @@ fn runtime(state: &mut MutexGuard<App>) {
 
     update_hwnd(state);
 
-    println!("[runtime]: {}", state.hwnd.0);
+    println!(
+        "[runtime]: app_hwnd: {}, hwnd: {}",
+        state.app_hwnd.0, state.hwnd.0
+    );
 }
 
 fn update_hwnd(state: &mut MutexGuard<App>) {
