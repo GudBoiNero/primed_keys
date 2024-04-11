@@ -48,12 +48,12 @@ fn macro_undo(state: State<AppState>) -> Result<(), ()> {
 #[tauri::command]
 // https://github.com/tauri-apps/tauri/discussions/4775
 fn init<R: Runtime>(window: tauri::Window<R>, state: State<'_, AppState>) -> Result<(), String> {
-    if let mut lock = state.0.lock().unwrap() {
-        if lock.initialized {
-            return Err("App already initialized.".to_owned());
-        } else {
-            lock.initialized = true;
-        }
+    let mut lock = state.0.lock().unwrap();
+
+    if lock.initialized {
+        return Err("App already initialized.".to_owned());
+    } else {
+        lock.initialized = true;
     }
 
     let state = Arc::clone(&state.0);
@@ -73,8 +73,6 @@ fn init<R: Runtime>(window: tauri::Window<R>, state: State<'_, AppState>) -> Res
         let state = Box::new(lock).as_mut();
 
         // use it however you want, you can emit an event to FE as well.
-        thread::sleep(Duration::from_millis(1000));
-        print!("Loop\n")
     });
 
     Ok(())
