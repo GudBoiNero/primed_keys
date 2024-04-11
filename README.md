@@ -1,7 +1,9 @@
 # What is PrimedKeys?
 
-PrimedKeys will be an onscreen configurable hotkey menu with a preset style akin to [Aseprite](https://www.aseprite.org/).
+PrimedKeys will be an onscreen configurable hotkey menu with a default style akin to [Aseprite](https://www.aseprite.org/).
 I plan to make specific support for customization, because not only is it fun, why not make it a little artsy considering it's literally meant for artists.
+
+The customizability will be very similar to how [Obsidian.md](https://obsidian.md) handles their CSS snippets and plugins.
 
 # Why?
 
