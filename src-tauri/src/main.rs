@@ -2,6 +2,7 @@
 #![cfg_attr(not(debug_assertions), windows_subsystem = "windows")]
 
 use std::{
+    process::Child,
     sync::{Arc, Mutex, MutexGuard},
     thread,
 };
@@ -9,10 +10,11 @@ use std::{
 use tauri::{Runtime, State};
 use windows::Win32::{
     Foundation::HWND,
-    UI::WindowsAndMessaging::{GetForegroundWindow, GetWindowTextA},
+    UI::WindowsAndMessaging::{GetForegroundWindow, GetWindowTextA, GetWindowThreadProcessId},
 };
 
 pub struct App {
+    app_hwnd: HWND,
     hwnd: HWND,
     hwnd_prev: HWND,
     initialized: bool,
@@ -21,6 +23,7 @@ pub struct App {
 impl App {
     pub fn new() -> Self {
         Self {
+            app_hwnd: HWND(0),
             hwnd: HWND(0),
             hwnd_prev: HWND(0),
             initialized: false,
@@ -73,7 +76,18 @@ fn init<R: Runtime>(window: tauri::Window<R>, state: State<'_, AppState>) -> Res
     Ok(())
 }
 
-fn runtime(state: &mut MutexGuard<App>) {}
+fn runtime(state: &mut MutexGuard<App>) {
+    state.app_hwnd = unsafe { HWND(0) };
+
+    update_hwnd(state);
+
+    println!("[runtime]: {}", state.hwnd.0);
+}
+
+fn update_hwnd(state: &mut MutexGuard<App>) {
+    state.hwnd_prev = state.hwnd;
+    state.hwnd = unsafe { GetForegroundWindow() };
+}
 
 fn main() {
     let app_state: AppState = AppState::init();
