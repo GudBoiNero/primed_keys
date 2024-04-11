@@ -12,9 +12,9 @@ It's a project I created from two problems I had.
 
 In the end I had no other options, so I thought to myself,
 
-> "Hmmmm. I haven't really touched C++ before." - Me
+> "Hmmmm. I haven't really touched ~~C++~~ Rust before." - Me
 
-~~Plus, I was introduced to [Dear ImGui](https://github.com/ocornut/imgui) recently- And I really liked it! So I figured this would be a great opportunity to fix my issues, and learn a new skill!~~ ImGui was an incredible library. But, it wasn't right for this project. I ended up switching over to [Tauri](https://tauri.app/) because it fits my needs much better.
+~~Plus, I was introduced to [Dear ImGui](https://github.com/ocornut/imgui) recently- And I really liked it! So I figured this would be a great opportunity to fix my issues, and learn a new skill!~~ ImGui was an incredible library, but it wasn't right for this project. I ended up switching over to [Tauri](https://tauri.app/) because it fits my needs much better.
 
 In my journey of trying to find a software like this. I found [RadialMenu](http://radialmenu.weebly.com/) and [AutoHotPie](https://github.com/dumbeau/AutoHotPie). But in my super specific case it didn't work out. Something about my computer did not want to work with RadialMenu. Also, my HP Pen didn't want to work with AutoHotPie regardless of what I did. Overall I really liked how RadialMenu was a legitamate gui overlay with a top level window holding buttons that replicate keystrokes.
 
@@ -27,5 +27,3 @@ If you need any help compiling/starting the project DM me on Discord (GudBoiNero
 1. For changes you must use a separate branch.
 2. You may not push to [`master`](https://github.com/GudBoiNero/primed_keys/tree/master). You may only push to [`beta`](https://github.com/GudBoiNero/primed_keys/tree/master).
 3. Pull requests to main may only be from [`beta`](https://github.com/GudBoiNero/primed_keys/tree/master).
-4. When making pull requests make sure to state the purpose of your changes, unless the issue the change is derived from clearly explains it.
-5. Try to keep commit comments relevant. (Flexible)
