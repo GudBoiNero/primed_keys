@@ -6,7 +6,7 @@ use std::{
     thread,
 };
 
-use tauri::{Runtime, State};
+use tauri::{utils::debug_eprintln, Runtime, State};
 use windows::Win32::{Foundation::HWND, UI::WindowsAndMessaging::GetForegroundWindow};
 
 pub struct App {
@@ -77,11 +77,6 @@ fn init<R: Runtime>(window: tauri::Window<R>, state: State<'_, AppState>) -> Res
 
 fn runtime(state: &mut MutexGuard<App>) {
     update_hwnd(state);
-
-    println!(
-        "[runtime]: target: {}, true: {}",
-        state.hwnd_target.0, state.hwnd.0
-    );
 }
 
 fn update_hwnd(state: &mut MutexGuard<App>) {
@@ -91,6 +86,12 @@ fn update_hwnd(state: &mut MutexGuard<App>) {
     if state.hwnd != state.hwnd_app && state.hwnd.0 != 0 {
         state.hwnd_target = state.hwnd;
     }
+
+    debug_eprintln!(
+        "[runtime]: target: {}, true: {}",
+        state.hwnd_target.0,
+        state.hwnd.0
+    );
 }
 
 fn main() {
