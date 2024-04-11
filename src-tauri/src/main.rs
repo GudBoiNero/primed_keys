@@ -78,8 +78,6 @@ fn init<R: Runtime>(window: tauri::Window<R>, state: State<'_, AppState>) -> Res
 }
 
 fn runtime(state: &mut MutexGuard<App>) {
-    state.app_hwnd = unsafe { HWND(0) };
-
     update_hwnd(state);
 
     println!(
