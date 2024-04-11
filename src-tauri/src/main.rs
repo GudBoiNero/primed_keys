@@ -2,16 +2,11 @@
 #![cfg_attr(not(debug_assertions), windows_subsystem = "windows")]
 
 use std::{
-    borrow::BorrowMut,
     sync::{Arc, Mutex, MutexGuard},
     thread,
-    time::Duration,
 };
 
-use tauri::{
-    plugin::{Builder as PluginBuilder, TauriPlugin},
-    Runtime, State,
-};
+use tauri::{Runtime, State};
 use windows::Win32::{
     Foundation::HWND,
     UI::WindowsAndMessaging::{GetForegroundWindow, GetWindowTextA},
