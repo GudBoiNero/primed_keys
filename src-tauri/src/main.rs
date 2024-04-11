@@ -2,7 +2,8 @@
 #![cfg_attr(not(debug_assertions), windows_subsystem = "windows")]
 
 use std::{
-    sync::{Arc, Mutex},
+    borrow::BorrowMut,
+    sync::{Arc, Mutex, MutexGuard},
     thread,
     time::Duration,
 };
@@ -48,16 +49,16 @@ fn macro_undo(state: State<AppState>) -> Result<(), ()> {
 #[tauri::command]
 // https://github.com/tauri-apps/tauri/discussions/4775
 fn init<R: Runtime>(window: tauri::Window<R>, state: State<'_, AppState>) -> Result<(), String> {
-    let mut lock = state.0.lock().unwrap();
-    if lock.initialized {
+    let mut init_lock = state.0.lock().unwrap();
+    if init_lock.initialized {
         return Err("App already initialized.".to_owned());
     } else {
-        lock.initialized = true;
+        init_lock.initialized = true;
     }
 
-    let state = Arc::clone(&state.0);
+    let arc = Arc::clone(&state.0);
     thread::spawn(move || loop {
-        let lock = state.try_lock();
+        let lock = arc.try_lock();
         // Handle errors, unwrap if you want
         if lock.is_err() {
             break;
@@ -68,13 +69,16 @@ fn init<R: Runtime>(window: tauri::Window<R>, state: State<'_, AppState>) -> Res
         };
 
         // Here's your state
-        let state = Box::new(lock).as_mut();
+        let mut state = lock;
 
         // use it however you want, you can emit an event to FE as well.
+        runtime(&mut state)
     });
 
     Ok(())
 }
+
+fn runtime(state: &mut MutexGuard<App>) {}
 
 fn main() {
     let app_state: AppState = AppState::init();
