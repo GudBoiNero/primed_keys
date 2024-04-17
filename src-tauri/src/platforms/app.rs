@@ -1,24 +1,22 @@
 use std::sync::MutexGuard;
 
-use super::windows::app::{impl_win_update, WinApp};
-
 pub trait App {
     fn new() -> Self;
     fn initialized(&self) -> bool;
 }
 
 #[cfg(target_os = "windows")]
-pub type PlatApp = WinApp;
+pub type PlatApp = super::windows::WinApp;
 #[cfg(target_os = "linux")]
-pub type PlatApp = LinuxApp;
+pub type PlatApp = super::linux::LinuxApp;
 #[cfg(target_os = "macos")]
-pub type PlatApp = MacApp;
+pub type PlatApp = super::macos::MacApp;
 
 pub fn update(state: &mut MutexGuard<PlatApp>) {
     #[cfg(target_os = "windows")]
-    impl_win_update(state);
+    super::windows::impl_win_update(state);
     #[cfg(target_os = "linux")]
-    impl_linux_update(state);
+    super::linux::impl_linux_update(state);
     #[cfg(target_os = "macos")]
-    impl_macos_update(state);
+    super::macos::impl_macos_update(state);
 }
