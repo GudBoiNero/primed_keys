@@ -1,27 +1,22 @@
 // Prevents additional console window on Windows in release, DO NOT REMOVE!!
 #![cfg_attr(not(debug_assertions), windows_subsystem = "windows")]
 
+mod platforms;
+
+use crate::platforms::app::{runtime, App};
+
 use std::{
-    sync::{Arc, Mutex, MutexGuard},
+    sync::{Arc, Mutex},
     thread,
 };
 
+use platforms::app::PlatApp;
 use tauri::{Runtime, State};
 
-pub struct App {
-    initialized: bool,
-}
-
-impl App {
-    pub fn new() -> Self {
-        Self { initialized: false }
-    }
-}
-
-pub struct AppState(pub Arc<Mutex<App>>);
+pub struct AppState(pub Arc<Mutex<PlatApp>>);
 impl AppState {
     pub fn init() -> Self {
-        AppState(Arc::new(Mutex::new(App::new())))
+        AppState(Arc::new(Mutex::new(PlatApp::new())))
     }
 }
 
@@ -62,8 +57,6 @@ fn init<R: Runtime>(window: tauri::Window<R>, state: State<'_, AppState>) -> Res
 
     Ok(())
 }
-
-fn runtime(state: &mut MutexGuard<App>) {}
 
 fn main() {
     let app_state: AppState = AppState::init();
