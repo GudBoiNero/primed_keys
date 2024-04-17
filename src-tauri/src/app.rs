@@ -6,7 +6,7 @@ pub trait App {
 }
 
 #[cfg(target_os = "windows")]
-pub type PlatApp = super::windows::app::WinApp;
+pub type PlatApp = crate::windows::app::WinApp;
 #[cfg(target_os = "linux")]
 pub type PlatApp = super::linux::LinuxApp;
 #[cfg(target_os = "macos")]

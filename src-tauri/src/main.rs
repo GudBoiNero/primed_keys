@@ -1,16 +1,20 @@
 // Prevents additional console window on Windows in release, DO NOT REMOVE!!
 #![cfg_attr(not(debug_assertions), windows_subsystem = "windows")]
+#[cfg(target_os = "linux")]
+pub(crate) mod linux;
+#[cfg(target_os = "macos")]
+pub(crate) mod macos;
+#[cfg(target_os = "windows")]
+pub(crate) mod windows;
 
-mod platforms;
+mod app;
 
-use crate::platforms::app::{update, App};
-
+use crate::app::{update, App};
+use app::PlatApp;
 use std::{
     sync::{Arc, Mutex},
     thread,
 };
-
-use platforms::app::PlatApp;
 use tauri::{Runtime, State};
 
 pub struct AppState(pub Arc<Mutex<PlatApp>>);
