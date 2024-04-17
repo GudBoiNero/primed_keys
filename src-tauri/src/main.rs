@@ -22,13 +22,13 @@ impl AppState {
 
 // Learn more about Tauri commands at https://tauri.app/v1/guides/features/command
 #[tauri::command]
-fn macro_undo(state: State<AppState>) -> Result<(), ()> {
+fn run_macro(_name: String, _state: State<AppState>) -> Result<(), ()> {
     Ok(())
 }
 
 #[tauri::command]
 // https://github.com/tauri-apps/tauri/discussions/4775
-fn init<R: Runtime>(window: tauri::Window<R>, state: State<'_, AppState>) -> Result<(), String> {
+fn init<R: Runtime>(_window: tauri::Window<R>, state: State<'_, AppState>) -> Result<(), String> {
     let mut init_lock = state.0.lock().unwrap();
     if init_lock.initialized {
         return Err("App already initialized.".to_owned());
@@ -63,7 +63,7 @@ fn main() {
 
     tauri::Builder::default()
         .manage(app_state)
-        .invoke_handler(tauri::generate_handler![init, macro_undo])
+        .invoke_handler(tauri::generate_handler![init, run_macro])
         .run(tauri::generate_context!())
         .expect("error while running tauri application");
 }
