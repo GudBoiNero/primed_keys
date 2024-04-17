@@ -6,26 +6,15 @@ use std::{
     thread,
 };
 
-use tauri::{utils::debug_eprintln, Runtime, State};
-use windows::Win32::{Foundation::HWND, UI::WindowsAndMessaging::GetForegroundWindow};
+use tauri::{Runtime, State};
 
 pub struct App {
-    hwnd: HWND,
-    hwnd_prev: HWND,
-    hwnd_app: HWND,
-    hwnd_target: HWND,
     initialized: bool,
 }
 
 impl App {
     pub fn new() -> Self {
-        Self {
-            hwnd: HWND(0),
-            hwnd_prev: HWND(0),
-            hwnd_app: HWND(0),
-            hwnd_target: HWND(0),
-            initialized: false,
-        }
+        Self { initialized: false }
     }
 }
 
@@ -49,7 +38,6 @@ fn init<R: Runtime>(window: tauri::Window<R>, state: State<'_, AppState>) -> Res
     if init_lock.initialized {
         return Err("App already initialized.".to_owned());
     } else {
-        init_lock.hwnd_app = HWND(window.hwnd().unwrap().0);
         init_lock.initialized = true;
     }
 
@@ -75,24 +63,7 @@ fn init<R: Runtime>(window: tauri::Window<R>, state: State<'_, AppState>) -> Res
     Ok(())
 }
 
-fn runtime(state: &mut MutexGuard<App>) {
-    update_hwnd(state);
-}
-
-fn update_hwnd(state: &mut MutexGuard<App>) {
-    state.hwnd_prev = state.hwnd;
-    state.hwnd = unsafe { GetForegroundWindow() };
-
-    if state.hwnd != state.hwnd_app && state.hwnd.0 != 0 {
-        state.hwnd_target = state.hwnd;
-    }
-
-    debug_eprintln!(
-        "[runtime]: target: {}, true: {}",
-        state.hwnd_target.0,
-        state.hwnd.0
-    );
-}
+fn runtime(state: &mut MutexGuard<App>) {}
 
 fn main() {
     let app_state: AppState = AppState::init();
