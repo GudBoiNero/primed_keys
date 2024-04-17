@@ -3,7 +3,7 @@
 
 mod platforms;
 
-use crate::platforms::app::{runtime, App};
+use crate::platforms::app::{update, App};
 
 use std::{
     sync::{Arc, Mutex},
@@ -52,7 +52,7 @@ fn init<R: Runtime>(window: tauri::Window<R>, state: State<'_, AppState>) -> Res
         let mut state = lock;
 
         // use it however you want, you can emit an event to FE as well.
-        runtime(&mut state);
+        update(&mut state);
     });
 
     Ok(())
