@@ -6,7 +6,7 @@ pub trait App {
 }
 
 #[cfg(target_os = "windows")]
-pub type PlatApp = super::windows::WinApp;
+pub type PlatApp = super::windows::app::WinApp;
 #[cfg(target_os = "linux")]
 pub type PlatApp = super::linux::LinuxApp;
 #[cfg(target_os = "macos")]
@@ -14,7 +14,7 @@ pub type PlatApp = super::macos::MacApp;
 
 pub fn update(state: &mut MutexGuard<PlatApp>) {
     #[cfg(target_os = "windows")]
-    super::windows::impl_win_update(state);
+    super::windows::app::impl_win_update(state);
     #[cfg(target_os = "linux")]
     super::linux::impl_linux_update(state);
     #[cfg(target_os = "macos")]
