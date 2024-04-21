@@ -7,20 +7,20 @@ pub(crate) mod macos;
 #[cfg(target_os = "windows")]
 pub(crate) mod windows;
 
-mod app;
+mod os;
 
-use crate::app::{update, App};
-use app::PlatApp;
+use crate::os::{update, App};
+use os::OSApp;
 use std::{
     sync::{Arc, Mutex},
     thread,
 };
 use tauri::{Runtime, State};
 
-pub struct AppState(pub Arc<Mutex<PlatApp>>);
+pub struct AppState(pub Arc<Mutex<OSApp>>);
 impl AppState {
     pub fn init() -> Self {
-        AppState(Arc::new(Mutex::new(PlatApp::new())))
+        AppState(Arc::new(Mutex::new(OSApp::new())))
     }
 }
 

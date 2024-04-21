@@ -2,7 +2,7 @@ use std::sync::MutexGuard;
 
 use windows::Win32::{Foundation::HWND, UI::WindowsAndMessaging::GetForegroundWindow};
 
-use crate::app::App;
+use crate::os::App;
 
 #[derive(Default)]
 pub struct WinHandles {
