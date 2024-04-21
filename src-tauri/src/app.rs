@@ -16,7 +16,7 @@ pub fn update(state: &mut MutexGuard<PlatApp>) {
     #[cfg(target_os = "windows")]
     super::windows::app::impl_win_update(state);
     #[cfg(target_os = "linux")]
-    super::linux::impl_linux_update(state);
+    super::linux::app::impl_linux_update(state);
     #[cfg(target_os = "macos")]
-    super::macos::impl_macos_update(state);
+    super::macos::app::impl_macos_update(state);
 }
