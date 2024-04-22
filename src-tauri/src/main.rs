@@ -5,13 +5,20 @@
 pub(crate) mod linux;
 #[cfg(target_os = "macos")]
 pub(crate) mod macos;
-#[cfg(target_os = "windows")]
+#[cfg(windows)]
 pub(crate) mod windows;
 
-mod os;
+#[cfg(target_os = "linux")]
+use linux as os;
+#[cfg(target_os = "macos")]
+use macos as os;
+#[cfg(windows)]
+use windows as os;
 
-use crate::os::{update, App};
-use os::OSApp;
+mod app;
+
+use crate::app::App;
+use os::app::OSApp;
 use std::{
     sync::{Arc, Mutex},
     thread,
@@ -57,7 +64,7 @@ fn init<R: Runtime>(_window: tauri::Window<R>, state: State<'_, AppState>) -> Re
         let mut state = lock;
 
         // use it however you want, you can emit an event to FE as well.
-        update(&mut state);
+        os::app::update(&mut state);
     });
 
     Ok(())
