@@ -35,6 +35,7 @@ impl AppState {
 // Learn more about Tauri commands at https://tauri.app/v1/guides/features/command
 #[tauri::command]
 fn run_macro(_name: String, _state: State<AppState>) -> Result<(), ()> {
+    // TODO: Turn `_state` to `state` into macro.
     let arc = Arc::clone(&_state.0);
     let lock = arc.lock();
     let lock = match lock {
