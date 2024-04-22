@@ -1,11 +1,11 @@
 use std::sync::MutexGuard;
 
-use crate::platforms::app::App;
+use crate::app::App;
 
-pub struct MacApp {
+pub struct OSApp {
     pub initialized: bool,
 }
-impl App for MacApp {
+impl App for OSApp {
     fn new() -> Self {
         Self { initialized: false }
     }
@@ -15,4 +15,4 @@ impl App for MacApp {
     }
 }
 
-pub fn impl_macos_update(state: &mut MutexGuard<MacApp>) {}
+pub fn update(state: &mut MutexGuard<OSApp>) {}

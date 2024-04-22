@@ -2,7 +2,7 @@ use std::sync::MutexGuard;
 
 use windows::Win32::{Foundation::HWND, UI::WindowsAndMessaging::GetForegroundWindow};
 
-use crate::os::App;
+use crate::app::App;
 
 #[derive(Default)]
 pub struct WinHandles {
@@ -12,11 +12,11 @@ pub struct WinHandles {
     pub app: HWND,
 }
 
-pub struct WinApp {
+pub struct OSApp {
     pub initialized: bool,
     pub handles: WinHandles,
 }
-impl App for WinApp {
+impl App for OSApp {
     fn new() -> Self {
         Self {
             initialized: false,
@@ -29,11 +29,11 @@ impl App for WinApp {
     }
 }
 
-pub fn impl_win_update(state: &mut MutexGuard<WinApp>) {
+pub fn update(state: &mut MutexGuard<OSApp>) {
     update_hwnd(state)
 }
 
-fn update_hwnd(state: &mut MutexGuard<WinApp>) {
+fn update_hwnd(state: &mut MutexGuard<OSApp>) {
     state.handles.prev = state.handles.curr;
     state.handles.curr = unsafe { GetForegroundWindow() };
 
