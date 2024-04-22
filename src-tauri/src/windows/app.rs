@@ -44,3 +44,5 @@ fn update_hwnd(state: &mut MutexGuard<OSApp>) {
         state.handles.target = state.handles.curr;
     }
 }
+
+pub fn run_macro(state: &mut MutexGuard<OSApp>) {}
