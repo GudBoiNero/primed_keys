@@ -76,7 +76,7 @@ pub fn run_macro(state: &mut MutexGuard<OSApp>) {
             r#type: Win32::UI::Input::KeyboardAndMouse::INPUT_KEYBOARD,
             Anonymous: Win32::UI::Input::KeyboardAndMouse::INPUT_0 {
                 ki: KEYBDINPUT {
-                    wVk: Win32::UI::Input::KeyboardAndMouse::VK_Z,
+                    wVk: Win32::UI::Input::KeyboardAndMouse::VK_R,
                     dwExtraInfo: extra_info,
                     dwFlags: KEYBD_EVENT_FLAGS(0),
                     time: 0,
@@ -88,7 +88,7 @@ pub fn run_macro(state: &mut MutexGuard<OSApp>) {
             r#type: Win32::UI::Input::KeyboardAndMouse::INPUT_KEYBOARD,
             Anonymous: Win32::UI::Input::KeyboardAndMouse::INPUT_0 {
                 ki: KEYBDINPUT {
-                    wVk: Win32::UI::Input::KeyboardAndMouse::VK_Z,
+                    wVk: Win32::UI::Input::KeyboardAndMouse::VK_R,
                     dwExtraInfo: extra_info,
                     dwFlags: KEYEVENTF_KEYUP,
                     time: 0,
