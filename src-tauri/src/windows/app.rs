@@ -1,4 +1,7 @@
-use std::{mem, sync::MutexGuard};
+use std::{
+    mem::{self, size_of},
+    sync::MutexGuard,
+};
 
 use windows::Win32::{
     self,
@@ -6,8 +9,9 @@ use windows::Win32::{
     System::Threading::AttachThreadInput,
     UI::{
         Input::KeyboardAndMouse::{
-            SendInput, SetActiveWindow, SetFocus, INPUT, KEYBDINPUT, KEYBD_EVENT_FLAGS,
-            KEYEVENTF_KEYUP, MAP_VIRTUAL_KEY_TYPE, VIRTUAL_KEY, VK_LWIN,
+            SendInput, SetActiveWindow, SetFocus, INPUT, INPUT_0, INPUT_KEYBOARD, INPUT_TYPE,
+            KEYBDINPUT, KEYBD_EVENT_FLAGS, KEYEVENTF_KEYUP, MAP_VIRTUAL_KEY_TYPE, VIRTUAL_KEY,
+            VK_LWIN,
         },
         WindowsAndMessaging::{
             GetForegroundWindow, GetMessageExtraInfo, GetWindowThreadProcessId, PostMessageA,
@@ -69,12 +73,35 @@ pub fn run_macro(state: &mut MutexGuard<OSApp>) {
         println!("SetForegroundWindow: {:?}", GetLastError());
         // This should send the Left Window key press to the target handle window.
         // For some reason there's no error or input showing up.
-        SendMessageW(
-            state.handles.target,
-            WM_KEYDOWN,
-            WPARAM(VK_LWIN.0.into()),
-            LPARAM(0),
-        );
-        println!("SendMessageW: {:?}", GetLastError());
+        const CBSIZE: i32 = size_of::<INPUT>() as i32;
+        let extra_info = GetMessageExtraInfo().0.unsigned_abs();
+        let mut pinputs: &[INPUT] = &[
+            INPUT {
+                r#type: INPUT_KEYBOARD,
+                Anonymous: INPUT_0 {
+                    ki: KEYBDINPUT {
+                        wVk: VK_LWIN,
+                        dwFlags: KEYBD_EVENT_FLAGS(0),
+                        wScan: 1,
+                        time: 0,
+                        dwExtraInfo: extra_info,
+                    },
+                },
+            },
+            INPUT {
+                r#type: INPUT_KEYBOARD,
+                Anonymous: INPUT_0 {
+                    ki: KEYBDINPUT {
+                        wVk: VK_LWIN,
+                        dwFlags: KEYEVENTF_KEYUP,
+                        wScan: 1,
+                        time: 0,
+                        dwExtraInfo: extra_info,
+                    },
+                },
+            },
+        ];
+        SendInput(&mut pinputs, CBSIZE);
+        println!("SendInput: {:?}", GetLastError());
     }
 }
