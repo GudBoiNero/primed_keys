@@ -66,6 +66,7 @@ pub fn run_macro(state: &mut MutexGuard<OSApp>) {
     unsafe {
         // This doesn't work. I need to do this so I can properly send inputs.
         SetForegroundWindow(state.handles.target);
+        println!("SetForegroundWindow: {:?}", GetLastError());
         // This should send the Left Window key press to the target handle window.
         // For some reason there's no error or input showing up.
         SendMessageW(
@@ -74,6 +75,6 @@ pub fn run_macro(state: &mut MutexGuard<OSApp>) {
             WPARAM(VK_LWIN.0.into()),
             LPARAM(0),
         );
-        println!("Result: {:?}", GetLastError());
+        println!("SendMessageW: {:?}", GetLastError());
     }
 }
