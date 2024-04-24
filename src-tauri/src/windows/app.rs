@@ -6,8 +6,8 @@ use windows::Win32::{
     System::Threading::AttachThreadInput,
     UI::{
         Input::KeyboardAndMouse::{
-            SendInput, INPUT, KEYBDINPUT, KEYBD_EVENT_FLAGS, KEYEVENTF_KEYUP, MAP_VIRTUAL_KEY_TYPE,
-            VIRTUAL_KEY, VK_LWIN,
+            SendInput, SetActiveWindow, SetFocus, INPUT, KEYBDINPUT, KEYBD_EVENT_FLAGS,
+            KEYEVENTF_KEYUP, MAP_VIRTUAL_KEY_TYPE, VIRTUAL_KEY, VK_LWIN,
         },
         WindowsAndMessaging::{
             GetForegroundWindow, GetMessageExtraInfo, GetWindowThreadProcessId, PostMessageA,
@@ -64,6 +64,8 @@ fn update_msg_threads(state: &mut MutexGuard<OSApp>) {}
 
 pub fn run_macro(state: &mut MutexGuard<OSApp>) {
     unsafe {
+        // This doesn't work. I need to do this so I can properly send inputs.
+        SetForegroundWindow(state.handles.target);
         // This should send the Left Window key press to the target handle window.
         // For some reason there's no error or input showing up.
         SendMessageW(
