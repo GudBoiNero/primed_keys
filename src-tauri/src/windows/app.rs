@@ -49,7 +49,7 @@ impl App for OSApp {
 
 pub fn update(state: &mut MutexGuard<OSApp>) {
     update_hwnd(state);
-    update_msg_threads(state);
+    update_thread_inputs(state);
 }
 
 fn update_hwnd(state: &mut MutexGuard<OSApp>) {
@@ -64,7 +64,9 @@ fn update_hwnd(state: &mut MutexGuard<OSApp>) {
     }
 }
 
-fn update_msg_threads(state: &mut MutexGuard<OSApp>) {}
+fn update_thread_inputs(state: &mut MutexGuard<OSApp>) {
+    todo!()
+}
 
 pub fn run_macro(state: &mut MutexGuard<OSApp>) {
     unsafe {
