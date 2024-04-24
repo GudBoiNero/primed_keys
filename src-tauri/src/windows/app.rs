@@ -8,7 +8,7 @@ use windows::Win32::{
             SendInput, INPUT, KEYBDINPUT, KEYBD_EVENT_FLAGS, KEYEVENTF_KEYUP, MAP_VIRTUAL_KEY_TYPE,
             VIRTUAL_KEY,
         },
-        WindowsAndMessaging::{GetForegroundWindow, GetMessageExtraInfo},
+        WindowsAndMessaging::{GetForegroundWindow, GetMessageExtraInfo, SendMessageA},
     },
 };
 
@@ -55,64 +55,4 @@ fn update_hwnd(state: &mut MutexGuard<OSApp>) {
     }
 }
 
-pub fn run_macro(state: &mut MutexGuard<OSApp>) {
-    const CBSIZE: i32 = mem::size_of::<INPUT>() as i32;
-    let extra_info = unsafe { GetMessageExtraInfo().0.unsigned_abs() };
-
-    let mut pinputs: &[INPUT] = &[
-        INPUT {
-            r#type: Win32::UI::Input::KeyboardAndMouse::INPUT_KEYBOARD,
-            Anonymous: Win32::UI::Input::KeyboardAndMouse::INPUT_0 {
-                ki: KEYBDINPUT {
-                    wVk: Win32::UI::Input::KeyboardAndMouse::VK_CONTROL,
-                    dwExtraInfo: extra_info,
-                    dwFlags: KEYBD_EVENT_FLAGS(0),
-                    time: 0,
-                    wScan: 1,
-                },
-            },
-        },
-        INPUT {
-            r#type: Win32::UI::Input::KeyboardAndMouse::INPUT_KEYBOARD,
-            Anonymous: Win32::UI::Input::KeyboardAndMouse::INPUT_0 {
-                ki: KEYBDINPUT {
-                    wVk: Win32::UI::Input::KeyboardAndMouse::VK_R,
-                    dwExtraInfo: extra_info,
-                    dwFlags: KEYBD_EVENT_FLAGS(0),
-                    time: 0,
-                    wScan: 1,
-                },
-            },
-        },
-        INPUT {
-            r#type: Win32::UI::Input::KeyboardAndMouse::INPUT_KEYBOARD,
-            Anonymous: Win32::UI::Input::KeyboardAndMouse::INPUT_0 {
-                ki: KEYBDINPUT {
-                    wVk: Win32::UI::Input::KeyboardAndMouse::VK_R,
-                    dwExtraInfo: extra_info,
-                    dwFlags: KEYEVENTF_KEYUP,
-                    time: 0,
-                    wScan: 1,
-                },
-            },
-        },
-        INPUT {
-            r#type: Win32::UI::Input::KeyboardAndMouse::INPUT_KEYBOARD,
-            Anonymous: Win32::UI::Input::KeyboardAndMouse::INPUT_0 {
-                ki: KEYBDINPUT {
-                    wVk: Win32::UI::Input::KeyboardAndMouse::VK_CONTROL,
-                    dwExtraInfo: extra_info,
-                    dwFlags: KEYEVENTF_KEYUP,
-                    time: 0,
-                    wScan: 1,
-                },
-            },
-        },
-    ];
-
-    let sent: u32;
-    unsafe {
-        sent = SendInput(&mut pinputs, CBSIZE);
-    }
-    println!("Inputs: {}", sent);
-}
+pub fn run_macro(state: &mut MutexGuard<OSApp>) {}
