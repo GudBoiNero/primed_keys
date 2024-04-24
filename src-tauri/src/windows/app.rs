@@ -2,14 +2,16 @@ use std::{mem, sync::MutexGuard};
 
 use windows::Win32::{
     self,
-    Foundation::{GetLastError, HWND},
+    Foundation::{GetLastError, HWND, LPARAM, WPARAM},
+    System::Threading::AttachThreadInput,
     UI::{
         Input::KeyboardAndMouse::{
             SendInput, INPUT, KEYBDINPUT, KEYBD_EVENT_FLAGS, KEYEVENTF_KEYUP, MAP_VIRTUAL_KEY_TYPE,
-            VIRTUAL_KEY,
+            VIRTUAL_KEY, VK_LWIN,
         },
         WindowsAndMessaging::{
-            GetForegroundWindow, GetMessageExtraInfo, SendMessageA, SetForegroundWindow, WM_KEYDOWN,
+            GetForegroundWindow, GetMessageExtraInfo, GetWindowThreadProcessId, PostMessageA,
+            PostMessageW, SendMessageA, SetForegroundWindow, WM_KEYDOWN,
         },
     },
 };
@@ -43,6 +45,7 @@ impl App for OSApp {
 
 pub fn update(state: &mut MutexGuard<OSApp>) {
     update_hwnd(state);
+    update_msg_threads(state);
 }
 
 fn update_hwnd(state: &mut MutexGuard<OSApp>) {
@@ -57,4 +60,8 @@ fn update_hwnd(state: &mut MutexGuard<OSApp>) {
     }
 }
 
-pub fn run_macro(state: &mut MutexGuard<OSApp>) {}
+fn update_msg_threads(state: &mut MutexGuard<OSApp>) {}
+
+pub fn run_macro(state: &mut MutexGuard<OSApp>) {
+    unsafe {}
+}
