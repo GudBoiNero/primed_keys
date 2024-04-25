@@ -75,10 +75,10 @@ fn update_thread_inputs(state: &mut MutexGuard<OSApp>, prev: HWND) {
         GetWindowThreadProcessId(state.handles.target, Some(&mut target_id));
         GetWindowThreadProcessId(prev, Some(&mut prev_id));
         // Disconnect `prev` thread
-        AttachThreadInput(app_id, prev_id, false);
+        AttachThreadInput(app_id, prev_id, BOOL(0));
         println!("AttachThreadInput prev_id: {:?}", GetLastError());
         // Attach `target` thread
-        AttachThreadInput(app_id, target_id, true);
+        AttachThreadInput(app_id, target_id, BOOL(1));
         println!("AttachThreadInput target_id: {:?}", GetLastError());
     }
 }
@@ -88,7 +88,7 @@ pub fn run_macro(state: &mut MutexGuard<OSApp>) {
         // This doesn't work. I need to do this so I can properly send inputs.
         SetForegroundWindow(state.handles.target);
         println!("SetForegroundWindow: {:?}", GetLastError());
-        // This should send the Left Window key press to the target handle window.
+        // This should send Ctrl+R to the target handle window.
         // For some reason there's no error or input showing up.
         const CBSIZE: i32 = size_of::<INPUT>() as i32;
         let extra_info = GetMessageExtraInfo().0.unsigned_abs();
