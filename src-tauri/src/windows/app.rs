@@ -69,10 +69,10 @@ fn update_hwnd(state: &mut MutexGuard<OSApp>) {
 fn update_thread_inputs(state: &mut MutexGuard<OSApp>, prev: HWND) {
     unsafe {
         let mut app_id: u32 = 0;
-        GetWindowThreadProcessId(state.handles.app, Some(&mut app_id));
         let mut target_id: u32 = 0;
-        GetWindowThreadProcessId(state.handles.target, Some(&mut target_id));
         let mut prev_id: u32 = 0;
+        GetWindowThreadProcessId(state.handles.app, Some(&mut app_id));
+        GetWindowThreadProcessId(state.handles.target, Some(&mut target_id));
         GetWindowThreadProcessId(prev, Some(&mut prev_id));
         // Disconnect `prev` thread
         AttachThreadInput(app_id, prev_id, false);
