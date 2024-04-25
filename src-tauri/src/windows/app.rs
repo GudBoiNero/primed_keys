@@ -62,21 +62,6 @@ fn update_hwnd(state: &mut MutexGuard<OSApp>) {
         let prev = state.handles.target.clone();
         state.handles.target = state.handles.curr;
         println!("Changed HWND: {} to {}", state.handles.target.0, prev.0);
-        update_thread_inputs(state, prev);
-    }
-}
-
-fn update_thread_inputs(state: &mut MutexGuard<OSApp>, prev: HWND) {
-    unsafe {
-        let mut app_id: u32 = GetCurrentProcessId();
-        let mut target_id: u32 = GetWindowThreadProcessId(state.handles.target, None);
-        let mut prev_id: u32 = GetWindowThreadProcessId(prev, None);
-        // Disconnect `prev` thread
-        AttachThreadInput(app_id, prev_id, false);
-        println!("AttachThreadInput prev_id: {:?}", GetLastError());
-        // Attach `target` thread
-        AttachThreadInput(app_id, target_id, true);
-        println!("AttachThreadInput target_id: {:?}", GetLastError());
     }
 }
 
