@@ -11,7 +11,7 @@ use windows::Win32::{
         Input::KeyboardAndMouse::{
             SendInput, SetActiveWindow, SetFocus, INPUT, INPUT_0, INPUT_KEYBOARD, INPUT_TYPE,
             KEYBDINPUT, KEYBD_EVENT_FLAGS, KEYEVENTF_KEYUP, MAP_VIRTUAL_KEY_TYPE, VIRTUAL_KEY,
-            VK_LWIN,
+            VK_CONTROL, VK_F11, VK_LCONTROL, VK_LWIN, VK_R,
         },
         WindowsAndMessaging::{
             GetForegroundWindow, GetMessageExtraInfo, GetWindowThreadProcessId, PostMessageA,
@@ -49,7 +49,6 @@ impl App for OSApp {
 
 pub fn update(state: &mut MutexGuard<OSApp>) {
     update_hwnd(state);
-    update_thread_inputs(state);
 }
 
 fn update_hwnd(state: &mut MutexGuard<OSApp>) {
@@ -60,12 +59,24 @@ fn update_hwnd(state: &mut MutexGuard<OSApp>) {
         && state.handles.curr != state.handles.prev
         && state.handles.curr.0 != 0
     {
+        let prev = state.handles.target.clone();
         state.handles.target = state.handles.curr;
+        update_thread_inputs(state, prev);
     }
 }
 
-fn update_thread_inputs(state: &mut MutexGuard<OSApp>) {
-    todo!()
+fn update_thread_inputs(state: &mut MutexGuard<OSApp>, prev: HWND) {
+    unsafe {
+        let app_id = GetWindowThreadProcessId(state.handles.app, None);
+        let target_id = GetWindowThreadProcessId(state.handles.target, None);
+        let prev_id = GetWindowThreadProcessId(prev, None);
+        // Disconnect `prev` thread
+        AttachThreadInput(app_id, prev_id, false);
+        println!("AttachThreadInput prev_id: {:?}", GetLastError());
+        // Attach `target` thread
+        AttachThreadInput(app_id, target_id, true);
+        println!("AttachThreadInput target_id: {:?}", GetLastError());
+    }
 }
 
 pub fn run_macro(state: &mut MutexGuard<OSApp>) {
@@ -82,7 +93,7 @@ pub fn run_macro(state: &mut MutexGuard<OSApp>) {
                 r#type: INPUT_KEYBOARD,
                 Anonymous: INPUT_0 {
                     ki: KEYBDINPUT {
-                        wVk: VK_LWIN,
+                        wVk: VK_LCONTROL,
                         dwFlags: KEYBD_EVENT_FLAGS(0),
                         wScan: 1,
                         time: 0,
@@ -94,7 +105,31 @@ pub fn run_macro(state: &mut MutexGuard<OSApp>) {
                 r#type: INPUT_KEYBOARD,
                 Anonymous: INPUT_0 {
                     ki: KEYBDINPUT {
-                        wVk: VK_LWIN,
+                        wVk: VK_R,
+                        dwFlags: KEYBD_EVENT_FLAGS(0),
+                        wScan: 1,
+                        time: 0,
+                        dwExtraInfo: extra_info,
+                    },
+                },
+            },
+            INPUT {
+                r#type: INPUT_KEYBOARD,
+                Anonymous: INPUT_0 {
+                    ki: KEYBDINPUT {
+                        wVk: VK_R,
+                        dwFlags: KEYEVENTF_KEYUP,
+                        wScan: 1,
+                        time: 0,
+                        dwExtraInfo: extra_info,
+                    },
+                },
+            },
+            INPUT {
+                r#type: INPUT_KEYBOARD,
+                Anonymous: INPUT_0 {
+                    ki: KEYBDINPUT {
+                        wVk: VK_LCONTROL,
                         dwFlags: KEYEVENTF_KEYUP,
                         wScan: 1,
                         time: 0,
