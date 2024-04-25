@@ -5,7 +5,7 @@ use std::{
 
 use windows::Win32::{
     self,
-    Foundation::{GetLastError, HWND, LPARAM, WPARAM},
+    Foundation::{GetLastError, BOOL, HWND, LPARAM, WPARAM},
     System::Threading::AttachThreadInput,
     UI::{
         Input::KeyboardAndMouse::{
@@ -61,15 +61,19 @@ fn update_hwnd(state: &mut MutexGuard<OSApp>) {
     {
         let prev = state.handles.target.clone();
         state.handles.target = state.handles.curr;
+        println!("Changed HWND: {} to {}", state.handles.target.0, prev.0);
         update_thread_inputs(state, prev);
     }
 }
 
 fn update_thread_inputs(state: &mut MutexGuard<OSApp>, prev: HWND) {
     unsafe {
-        let app_id = GetWindowThreadProcessId(state.handles.app, None);
-        let target_id = GetWindowThreadProcessId(state.handles.target, None);
-        let prev_id = GetWindowThreadProcessId(prev, None);
+        let mut app_id: u32 = 0;
+        GetWindowThreadProcessId(state.handles.app, Some(&mut app_id));
+        let mut target_id: u32 = 0;
+        GetWindowThreadProcessId(state.handles.target, Some(&mut target_id));
+        let mut prev_id: u32 = 0;
+        GetWindowThreadProcessId(prev, Some(&mut prev_id));
         // Disconnect `prev` thread
         AttachThreadInput(app_id, prev_id, false);
         println!("AttachThreadInput prev_id: {:?}", GetLastError());
