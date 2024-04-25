@@ -6,7 +6,7 @@ use std::{
 use windows::Win32::{
     self,
     Foundation::{GetLastError, BOOL, HWND, LPARAM, WPARAM},
-    System::Threading::AttachThreadInput,
+    System::Threading::{AttachThreadInput, GetCurrentProcessId},
     UI::{
         Input::KeyboardAndMouse::{
             SendInput, SetActiveWindow, SetFocus, INPUT, INPUT_0, INPUT_KEYBOARD, INPUT_TYPE,
@@ -68,17 +68,14 @@ fn update_hwnd(state: &mut MutexGuard<OSApp>) {
 
 fn update_thread_inputs(state: &mut MutexGuard<OSApp>, prev: HWND) {
     unsafe {
-        let mut app_id: u32 = 0;
-        let mut target_id: u32 = 0;
-        let mut prev_id: u32 = 0;
-        GetWindowThreadProcessId(state.handles.app, Some(&mut app_id));
-        GetWindowThreadProcessId(state.handles.target, Some(&mut target_id));
-        GetWindowThreadProcessId(prev, Some(&mut prev_id));
+        let mut app_id: u32 = GetCurrentProcessId();
+        let mut target_id: u32 = GetWindowThreadProcessId(state.handles.target, None);
+        let mut prev_id: u32 = GetWindowThreadProcessId(prev, None);
         // Disconnect `prev` thread
-        AttachThreadInput(app_id, prev_id, BOOL(0));
+        AttachThreadInput(app_id, prev_id, false);
         println!("AttachThreadInput prev_id: {:?}", GetLastError());
         // Attach `target` thread
-        AttachThreadInput(app_id, target_id, BOOL(1));
+        AttachThreadInput(app_id, target_id, true);
         println!("AttachThreadInput target_id: {:?}", GetLastError());
     }
 }
