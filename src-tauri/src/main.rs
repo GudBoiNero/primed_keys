@@ -35,8 +35,7 @@ impl AppState {
 #[tauri::command]
 fn run_macro(_name: String, _state: State<AppState>) -> Result<(), ()> {
     // TODO: Turn `_state` to `state` into macro.
-    let arc = Arc::clone(&_state.0);
-    let lock = arc.lock(ThreadPriority::Command.into());
+    let lock = _state.0.lock(ThreadPriority::Command.into());
     let lock = match lock {
         Ok(x) => x,
         Err(_) => return Err(()),
@@ -53,14 +52,16 @@ fn run_macro(_name: String, _state: State<AppState>) -> Result<(), ()> {
 fn init<R: Runtime>(_window: tauri::Window<R>, state: State<'_, AppState>) -> Result<(), String> {
     let mut init_lock = state.0.lock(ThreadPriority::Main.into()).unwrap();
     if init_lock.initialized {
+        println!("App Already Initialized! (Did the page refresh?)");
         return Err("App already initialized.".to_owned());
     } else {
         init_lock.initialized = true;
+        println!("App Initialized.");
     }
 
     let arc = Arc::clone(&state.0);
     thread::spawn(move || loop {
-        let lock = arc.try_lock();
+        let lock = arc.lock(ThreadPriority::Main.into());
         // Handle errors, unwrap if you want
         if lock.is_err() {
             continue;
