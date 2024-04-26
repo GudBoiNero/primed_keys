@@ -84,22 +84,6 @@ fn init<R: Runtime>(_window: tauri::Window<R>, state: State<'_, AppState>) -> Re
 fn main() {
     let app_state: AppState = AppState::init();
 
-    let windows_attributes = tauri_build::WindowsAttributes::new().app_manifest(
-        r#"
-    <assembly xmlns="urn:schemas-microsoft-com:asm.v1" manifestVersion="1.0">
-      <trustInfo xmlns="urn:schemas-microsoft-com:asm.v3">
-          <security>
-              <requestedPrivileges>
-                  <requestedExecutionLevel level="requireAdministrator" uiAccess="false" />
-              </requestedPrivileges>
-          </security>
-      </trustInfo>
-    </assembly>
-    "#,
-    );
-    let attributes = tauri_build::Attributes::new().windows_attributes(windows_attributes);
-    tauri_build::try_build(attributes).unwrap();
-
     tauri::Builder::default()
         .manage(app_state)
         .invoke_handler(tauri::generate_handler![init, run_macro])
