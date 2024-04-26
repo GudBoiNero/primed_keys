@@ -49,7 +49,7 @@ fn update_hwnd(state: &mut MutexGuard<OSApp>) {
     {
         let prev = state.handles.target.clone();
         state.handles.target = state.handles.curr;
-        println!("Changed HWND: {} to {}", state.handles.target.0, prev.0);
+        println!("Changed Target: {} to {}", state.handles.target.0, prev.0);
     }
 }
 
@@ -58,33 +58,41 @@ pub fn run_macro(state: &mut MutexGuard<OSApp>) {
     println!("run_macro: Running.");
     unsafe {
         // This should send Ctrl+R to the target handle window.
-        SendMessageA(
-            state.handles.target,
-            WM_KEYDOWN,
-            WPARAM(VK_CONTROL.0.into()),
-            LPARAM(0),
+        println!(
+            "SendMessageA VK_CONTROL WM_KEYDOWN: {:?}",
+            SendMessageA(
+                state.handles.target,
+                WM_KEYDOWN,
+                WPARAM(VK_CONTROL.0.into()),
+                LPARAM(0),
+            )
         );
-        println!("SendMessageA VK_CONTROL WM_KEYDOWN: {:?}", GetLastError());
-        SendMessageA(
-            state.handles.target,
-            WM_KEYDOWN,
-            WPARAM(VK_R.0.into()),
-            LPARAM(0),
+        println!(
+            "SendMessageA VK_R WM_KEYDOWN: {:?}",
+            SendMessageA(
+                state.handles.target,
+                WM_KEYDOWN,
+                WPARAM(VK_R.0.into()),
+                LPARAM(0),
+            )
         );
-        println!("SendMessageA VK_R WM_KEYDOWN: {:?}", GetLastError());
-        SendMessageA(
-            state.handles.target,
-            WM_KEYUP,
-            WPARAM(VK_R.0.into()),
-            LPARAM(0),
+        println!(
+            "SendMessageA VK_R WM_KEYUP: {:?}",
+            SendMessageA(
+                state.handles.target,
+                WM_KEYUP,
+                WPARAM(VK_R.0.into()),
+                LPARAM(0),
+            )
         );
-        println!("SendMessageA VK_R WM_KEYUP: {:?}", GetLastError());
-        SendMessageA(
-            state.handles.target,
-            WM_KEYUP,
-            WPARAM(VK_CONTROL.0.into()),
-            LPARAM(0),
+        println!(
+            "SendMessageA VK_CONTROL WM_KEYUP: {:?}",
+            SendMessageA(
+                state.handles.target,
+                WM_KEYUP,
+                WPARAM(VK_CONTROL.0.into()),
+                LPARAM(0),
+            )
         );
-        println!("SendMessageA VK_CONTROL WM_KEYUP: {:?}", GetLastError());
     }
 }
