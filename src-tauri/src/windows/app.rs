@@ -55,6 +55,7 @@ fn update_hwnd(state: &mut MutexGuard<OSApp>) {
 
 /// TODO: this breaks the main loop.
 pub fn run_macro(state: &mut MutexGuard<OSApp>) {
+    println!("run_macro: Running.");
     unsafe {
         // This should send Ctrl+R to the target handle window.
         SendMessageA(
