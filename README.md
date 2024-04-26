@@ -27,5 +27,5 @@ If you need any help compiling/starting the project DM me on Discord (GudBoiNero
 # Contribution Rules
 
 1. For changes you must use a separate branch.
-2. You may not push to [`master`](https://github.com/GudBoiNero/primed_keys/tree/master). You may only push to [`beta`](https://github.com/GudBoiNero/primed_keys/tree/master).
-3. Pull requests to main may only be from [`beta`](https://github.com/GudBoiNero/primed_keys/tree/master).
+2. You may not push to [`main`](https://github.com/GudBoiNero/primed_keys/tree/main). You may only push to [`beta`](https://github.com/GudBoiNero/primed_keys/tree/beta).
+3. Pull requests to main may only be from [`beta`](https://github.com/GudBoiNero/primed_keys/tree/beta).
