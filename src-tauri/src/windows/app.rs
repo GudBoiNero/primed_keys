@@ -1,22 +1,10 @@
-use std::{
-    mem::{self, size_of},
-    sync::MutexGuard,
-};
+use std::sync::MutexGuard;
 
 use windows::Win32::{
-    self,
-    Foundation::{GetLastError, BOOL, HWND, LPARAM, WPARAM},
-    System::Threading::{AttachThreadInput, GetCurrentProcessId},
+    Foundation::{GetLastError, HWND, LPARAM, WPARAM},
     UI::{
-        Input::KeyboardAndMouse::{
-            SendInput, SetActiveWindow, SetFocus, INPUT, INPUT_0, INPUT_KEYBOARD, INPUT_TYPE,
-            KEYBDINPUT, KEYBD_EVENT_FLAGS, KEYEVENTF_KEYUP, MAP_VIRTUAL_KEY_TYPE, VIRTUAL_KEY,
-            VK_CONTROL, VK_F11, VK_LCONTROL, VK_LWIN, VK_R,
-        },
-        WindowsAndMessaging::{
-            GetForegroundWindow, GetMessageExtraInfo, GetWindowThreadProcessId, PostMessageA,
-            PostMessageW, SendMessageA, SendMessageW, SetForegroundWindow, WM_KEYDOWN,
-        },
+        Input::KeyboardAndMouse::{VK_CONTROL, VK_R},
+        WindowsAndMessaging::{GetForegroundWindow, SendMessageA, WM_KEYDOWN, WM_KEYUP},
     },
 };
 
@@ -65,66 +53,37 @@ fn update_hwnd(state: &mut MutexGuard<OSApp>) {
     }
 }
 
+/// TODO: this breaks the main loop.
 pub fn run_macro(state: &mut MutexGuard<OSApp>) {
     unsafe {
-        // This doesn't work. I need to do this so I can properly send inputs.
-        SetForegroundWindow(state.handles.target);
-        println!("SetForegroundWindow: {:?}", GetLastError());
         // This should send Ctrl+R to the target handle window.
-        // For some reason there's no error or input showing up.
-        const CBSIZE: i32 = size_of::<INPUT>() as i32;
-        let extra_info = GetMessageExtraInfo().0.unsigned_abs();
-        let mut pinputs: &[INPUT] = &[
-            INPUT {
-                r#type: INPUT_KEYBOARD,
-                Anonymous: INPUT_0 {
-                    ki: KEYBDINPUT {
-                        wVk: VK_LCONTROL,
-                        dwFlags: KEYBD_EVENT_FLAGS(0),
-                        wScan: 1,
-                        time: 0,
-                        dwExtraInfo: extra_info,
-                    },
-                },
-            },
-            INPUT {
-                r#type: INPUT_KEYBOARD,
-                Anonymous: INPUT_0 {
-                    ki: KEYBDINPUT {
-                        wVk: VK_R,
-                        dwFlags: KEYBD_EVENT_FLAGS(0),
-                        wScan: 1,
-                        time: 0,
-                        dwExtraInfo: extra_info,
-                    },
-                },
-            },
-            INPUT {
-                r#type: INPUT_KEYBOARD,
-                Anonymous: INPUT_0 {
-                    ki: KEYBDINPUT {
-                        wVk: VK_R,
-                        dwFlags: KEYEVENTF_KEYUP,
-                        wScan: 1,
-                        time: 0,
-                        dwExtraInfo: extra_info,
-                    },
-                },
-            },
-            INPUT {
-                r#type: INPUT_KEYBOARD,
-                Anonymous: INPUT_0 {
-                    ki: KEYBDINPUT {
-                        wVk: VK_LCONTROL,
-                        dwFlags: KEYEVENTF_KEYUP,
-                        wScan: 1,
-                        time: 0,
-                        dwExtraInfo: extra_info,
-                    },
-                },
-            },
-        ];
-        SendInput(&mut pinputs, CBSIZE);
-        println!("SendInput: {:?}", GetLastError());
+        SendMessageA(
+            state.handles.target,
+            WM_KEYDOWN,
+            WPARAM(VK_CONTROL.0.into()),
+            LPARAM(0),
+        );
+        println!("SendMessageA VK_CONTROL WM_KEYDOWN: {:?}", GetLastError());
+        SendMessageA(
+            state.handles.target,
+            WM_KEYDOWN,
+            WPARAM(VK_R.0.into()),
+            LPARAM(0),
+        );
+        println!("SendMessageA VK_R WM_KEYDOWN: {:?}", GetLastError());
+        SendMessageA(
+            state.handles.target,
+            WM_KEYUP,
+            WPARAM(VK_R.0.into()),
+            LPARAM(0),
+        );
+        println!("SendMessageA VK_R WM_KEYUP: {:?}", GetLastError());
+        SendMessageA(
+            state.handles.target,
+            WM_KEYUP,
+            WPARAM(VK_CONTROL.0.into()),
+            LPARAM(0),
+        );
+        println!("SendMessageA VK_CONTROL WM_KEYUP: {:?}", GetLastError());
     }
 }

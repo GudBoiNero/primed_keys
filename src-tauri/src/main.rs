@@ -23,7 +23,7 @@ use std::{
     sync::{Arc, Mutex},
     thread,
 };
-use tauri::{Runtime, State};
+use tauri::{utils::config::WindowsConfig, Runtime, State};
 
 pub struct AppState(pub Arc<Mutex<OSApp>>);
 impl AppState {
@@ -37,7 +37,7 @@ impl AppState {
 fn run_macro(_name: String, _state: State<AppState>) -> Result<(), ()> {
     // TODO: Turn `_state` to `state` into macro.
     let arc = Arc::clone(&_state.0);
-    let lock = arc.lock();
+    let lock = arc.try_lock();
     let lock = match lock {
         Ok(x) => x,
         Err(_) => return Err(()),
@@ -83,6 +83,22 @@ fn init<R: Runtime>(_window: tauri::Window<R>, state: State<'_, AppState>) -> Re
 
 fn main() {
     let app_state: AppState = AppState::init();
+
+    let windows_attributes = tauri_build::WindowsAttributes::new().app_manifest(
+        r#"
+    <assembly xmlns="urn:schemas-microsoft-com:asm.v1" manifestVersion="1.0">
+      <trustInfo xmlns="urn:schemas-microsoft-com:asm.v3">
+          <security>
+              <requestedPrivileges>
+                  <requestedExecutionLevel level="requireAdministrator" uiAccess="false" />
+              </requestedPrivileges>
+          </security>
+      </trustInfo>
+    </assembly>
+    "#,
+    );
+    let attributes = tauri_build::Attributes::new().windows_attributes(windows_attributes);
+    tauri_build::try_build(attributes).unwrap();
 
     tauri::Builder::default()
         .manage(app_state)
