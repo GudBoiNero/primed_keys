@@ -37,7 +37,7 @@ impl AppState {
 fn run_macro(_name: String, _state: State<AppState>) -> Result<(), ()> {
     // TODO: Turn `_state` to `state` into macro.
     let arc = Arc::clone(&_state.0);
-    let lock = arc.try_lock();
+    let lock = arc.lock();
     let lock = match lock {
         Ok(x) => x,
         Err(_) => return Err(()),
@@ -64,11 +64,11 @@ fn init<R: Runtime>(_window: tauri::Window<R>, state: State<'_, AppState>) -> Re
         let lock = arc.try_lock();
         // Handle errors, unwrap if you want
         if lock.is_err() {
-            break;
+            continue;
         }
         let lock = match lock {
             Ok(x) => x,
-            Err(_) => break,
+            Err(_) => continue,
         };
 
         // Here's your state
