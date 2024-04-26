@@ -22,10 +22,10 @@ In my journey of trying to find a software like this. I found [RadialMenu](http:
 
 # Setup
 
-If you need any help compiling/starting the project DM me on Discord (GudBoiNero#6650) or open an [issue](https://github.com/GudBoiNero/**primed_keys**/issues).
+If you need any help compiling/starting the project DM me on Discord (GudBoiNero#6650) or open an [issue](https://github.com/GudBoiNero/primed_keys/issues).
 
 # Contribution Rules
 
 1. For changes you must use a separate branch.
-2. You may not push to [`master`](https://github.com/GudBoiNero/**primed_keys**/tree/master). You may only push to [`beta`](https://github.com/GudBoiNero/**primed_keys**/tree/master).
-3. Pull requests to main may only be from [`beta`](https://github.com/GudBoiNero/**primed_keys**/tree/master).
+2. You may not push to [`master`](https://github.com/GudBoiNero/primed_keys/tree/master). You may only push to [`beta`](https://github.com/GudBoiNero/primed_keys/tree/master).
+3. Pull requests to main may only be from [`beta`](https://github.com/GudBoiNero/primed_keys/tree/master).
