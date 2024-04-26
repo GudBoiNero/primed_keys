@@ -23,7 +23,7 @@ use std::{
     sync::{Arc, Mutex},
     thread,
 };
-use tauri::{utils::config::WindowsConfig, Runtime, State};
+use tauri::{Runtime, State};
 
 pub struct AppState(pub Arc<Mutex<OSApp>>);
 impl AppState {

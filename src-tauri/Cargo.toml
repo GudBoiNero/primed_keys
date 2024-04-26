@@ -6,6 +6,9 @@ authors = ["GudBoiNero"]
 edition = "2021"
 
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
+[env]
+CARGO_CFG_TARGET_OS = ["windows"]
+TARGET = ["x86_64-pc-windows-gnu", "x86_64-pc-windows-msvc"]
 
 [build-dependencies]
 tauri-build = { version = "1", features = [] }
