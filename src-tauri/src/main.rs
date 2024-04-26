@@ -8,6 +8,7 @@ pub(crate) mod macos;
 #[cfg(windows)]
 pub(crate) mod windows;
 
+use app::ThreadPriority;
 #[cfg(target_os = "linux")]
 use linux as os;
 #[cfg(target_os = "macos")]
@@ -19,10 +20,8 @@ mod app;
 
 use crate::app::App;
 use os::app::OSApp;
-use std::{
-    sync::{Arc, Mutex},
-    thread,
-};
+use priomutex::Mutex;
+use std::{sync::Arc, thread};
 use tauri::{Runtime, State};
 
 pub struct AppState(pub Arc<Mutex<OSApp>>);
@@ -37,7 +36,7 @@ impl AppState {
 fn run_macro(_name: String, _state: State<AppState>) -> Result<(), ()> {
     // TODO: Turn `_state` to `state` into macro.
     let arc = Arc::clone(&_state.0);
-    let lock = arc.lock();
+    let lock = arc.lock(ThreadPriority::Command.into());
     let lock = match lock {
         Ok(x) => x,
         Err(_) => return Err(()),
@@ -52,7 +51,7 @@ fn run_macro(_name: String, _state: State<AppState>) -> Result<(), ()> {
 #[tauri::command]
 // https://github.com/tauri-apps/tauri/discussions/4775
 fn init<R: Runtime>(_window: tauri::Window<R>, state: State<'_, AppState>) -> Result<(), String> {
-    let mut init_lock = state.0.lock().unwrap();
+    let mut init_lock = state.0.lock(ThreadPriority::Main.into()).unwrap();
     if init_lock.initialized {
         return Err("App already initialized.".to_owned());
     } else {

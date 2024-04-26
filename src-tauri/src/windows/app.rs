@@ -1,4 +1,4 @@
-use std::sync::MutexGuard;
+use priomutex::MutexGuard;
 
 use windows::Win32::{
     Foundation::{GetLastError, HWND, LPARAM, WPARAM},
