@@ -1,7 +1,7 @@
 use priomutex::MutexGuard;
 
 use windows::Win32::{
-    Foundation::{GetLastError, HWND, LPARAM, WPARAM},
+    Foundation::{HWND, LPARAM, WPARAM},
     UI::{
         Input::KeyboardAndMouse::{VK_CONTROL, VK_R},
         WindowsAndMessaging::{GetForegroundWindow, SendMessageA, WM_KEYDOWN, WM_KEYUP},
