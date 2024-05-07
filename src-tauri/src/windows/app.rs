@@ -56,6 +56,7 @@ fn update_hwnd(state: &mut MutexGuard<OSApp>) {
 pub fn run_macro(state: &mut MutexGuard<OSApp>) {
     unsafe {
         // This should send Ctrl+R to the target handle window.
+        // It doesn't work right now. No errors but it won't actually send the inputs.
         println!(
             "SendMessageA VK_CONTROL WM_KEYDOWN: {:?}",
             SendMessageA(
