@@ -61,7 +61,8 @@ fn update_hwnd(state: &mut MutexGuard<OSApp>) {
     }
 }
 
-/// https://stackoverflow.com/a/59659421/17763366
+/// `AttachThreadInput` seems to have some issues in Rust. It always returns `WIN32_ERROR(87)` in this case. \
+/// Source: https://stackoverflow.com/a/59659421/17763366
 unsafe fn force_foreground_window(hwnd: HWND) {
     let current_thread_id = GetCurrentThreadId();
     let window_thread_process_id =
