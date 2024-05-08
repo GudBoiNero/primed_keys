@@ -63,14 +63,14 @@ fn update_hwnd(state: &mut MutexGuard<OSApp>) {
 
 /// https://stackoverflow.com/a/59659421/17763366
 unsafe fn force_foreground_window(hwnd: HWND) {
+    let current_thread_id = GetCurrentThreadId();
     let window_thread_process_id =
         GetWindowThreadProcessId(GetForegroundWindow(), Some(std::ptr::null_mut()));
-    let current_thread_id = GetCurrentThreadId();
     const CONST_SW_SHOW: i32 = 5;
-    if AttachThreadInput(window_thread_process_id, current_thread_id, true).as_bool() {
+    if AttachThreadInput(current_thread_id, window_thread_process_id, true).as_bool() {
         let _ = BringWindowToTop(hwnd);
         ShowWindow(hwnd, SHOW_WINDOW_CMD(CONST_SW_SHOW));
-        AttachThreadInput(window_thread_process_id, current_thread_id, false);
+        AttachThreadInput(current_thread_id, window_thread_process_id, false);
     }
 }
 
