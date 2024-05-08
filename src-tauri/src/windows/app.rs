@@ -2,11 +2,12 @@ use priomutex::MutexGuard;
 
 use windows::Win32::{
     Foundation::{GetLastError, HWND, LPARAM, WPARAM},
+    System::Threading::{AttachThreadInput, GetCurrentProcess, GetCurrentThreadId},
     UI::{
-        Input::KeyboardAndMouse::{VK_CONTROL, VK_R},
+        Input::KeyboardAndMouse::{GetActiveWindow, SetActiveWindow, VK_CONTROL, VK_R},
         WindowsAndMessaging::{
-            GetForegroundWindow, SendMessageA, SendMessageW, SetForegroundWindow, WM_KEYDOWN,
-            WM_KEYUP,
+            BringWindowToTop, GetForegroundWindow, GetWindowThreadProcessId, SendMessageA,
+            SendMessageW, SetForegroundWindow, ShowWindow, SHOW_WINDOW_CMD, WM_KEYDOWN, WM_KEYUP,
         },
     },
 };
@@ -27,10 +28,14 @@ pub struct OSApp {
 }
 impl App for OSApp {
     fn new() -> Self {
-        Self {
+        let mut ret = Self {
             initialized: false,
             handles: WinHandles::default(),
-        }
+        };
+
+        ret.handles.app = unsafe { GetForegroundWindow() };
+
+        ret
     }
 
     fn initialized(&self) -> bool {
@@ -56,8 +61,22 @@ fn update_hwnd(state: &mut MutexGuard<OSApp>) {
     }
 }
 
+/// https://stackoverflow.com/a/59659421/17763366
+unsafe fn force_foreground_window(hwnd: HWND) {
+    let window_thread_process_id =
+        GetWindowThreadProcessId(GetForegroundWindow(), Some(std::ptr::null_mut()));
+    let current_thread_id = GetCurrentThreadId();
+    const CONST_SW_SHOW: i32 = 5;
+    AttachThreadInput(window_thread_process_id, current_thread_id, true);
+    println!("{:?}", GetLastError());
+    let _ = BringWindowToTop(hwnd);
+    ShowWindow(hwnd, SHOW_WINDOW_CMD(CONST_SW_SHOW));
+    AttachThreadInput(window_thread_process_id, current_thread_id, false);
+    println!("{:?}", GetLastError());
+}
+
 pub fn run_macro(state: &mut MutexGuard<OSApp>) {
     unsafe {
-        SetForegroundWindow(state.handles.target);
+        force_foreground_window(state.handles.target);
     }
 }
