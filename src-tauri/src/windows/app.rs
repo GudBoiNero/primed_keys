@@ -67,12 +67,11 @@ unsafe fn force_foreground_window(hwnd: HWND) {
         GetWindowThreadProcessId(GetForegroundWindow(), Some(std::ptr::null_mut()));
     let current_thread_id = GetCurrentThreadId();
     const CONST_SW_SHOW: i32 = 5;
-    AttachThreadInput(window_thread_process_id, current_thread_id, true);
-    println!("{:?}", GetLastError());
-    let _ = BringWindowToTop(hwnd);
-    ShowWindow(hwnd, SHOW_WINDOW_CMD(CONST_SW_SHOW));
-    AttachThreadInput(window_thread_process_id, current_thread_id, false);
-    println!("{:?}", GetLastError());
+    if AttachThreadInput(window_thread_process_id, current_thread_id, true).as_bool() {
+        let _ = BringWindowToTop(hwnd);
+        ShowWindow(hwnd, SHOW_WINDOW_CMD(CONST_SW_SHOW));
+        AttachThreadInput(window_thread_process_id, current_thread_id, false);
+    }
 }
 
 pub fn run_macro(state: &mut MutexGuard<OSApp>) {
