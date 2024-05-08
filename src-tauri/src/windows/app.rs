@@ -1,10 +1,13 @@
 use priomutex::MutexGuard;
 
 use windows::Win32::{
-    Foundation::{HWND, LPARAM, WPARAM},
+    Foundation::{GetLastError, HWND, LPARAM, WPARAM},
     UI::{
         Input::KeyboardAndMouse::{VK_CONTROL, VK_R},
-        WindowsAndMessaging::{GetForegroundWindow, SendMessageA, WM_KEYDOWN, WM_KEYUP},
+        WindowsAndMessaging::{
+            GetForegroundWindow, SendMessageA, SendMessageW, SetForegroundWindow, WM_KEYDOWN,
+            WM_KEYUP,
+        },
     },
 };
 
@@ -55,43 +58,6 @@ fn update_hwnd(state: &mut MutexGuard<OSApp>) {
 
 pub fn run_macro(state: &mut MutexGuard<OSApp>) {
     unsafe {
-        // This should send Ctrl+R to the target handle window.
-        // It doesn't work right now. No errors but it won't actually send the inputs.
-        println!(
-            "SendMessageA VK_CONTROL WM_KEYDOWN: {:?}",
-            SendMessageA(
-                state.handles.target,
-                WM_KEYDOWN,
-                WPARAM(VK_CONTROL.0.into()),
-                LPARAM(0),
-            )
-        );
-        println!(
-            "SendMessageA VK_R WM_KEYDOWN: {:?}",
-            SendMessageA(
-                state.handles.target,
-                WM_KEYDOWN,
-                WPARAM(VK_R.0.into()),
-                LPARAM(0),
-            )
-        );
-        println!(
-            "SendMessageA VK_R WM_KEYUP: {:?}",
-            SendMessageA(
-                state.handles.target,
-                WM_KEYUP,
-                WPARAM(VK_R.0.into()),
-                LPARAM(0),
-            )
-        );
-        println!(
-            "SendMessageA VK_CONTROL WM_KEYUP: {:?}",
-            SendMessageA(
-                state.handles.target,
-                WM_KEYUP,
-                WPARAM(VK_CONTROL.0.into()),
-                LPARAM(0),
-            )
-        );
+        SetForegroundWindow(state.handles.target);
     }
 }
