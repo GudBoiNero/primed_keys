@@ -1,7 +1,7 @@
 use priomutex::MutexGuard;
 
 use windows::Win32::{
-    Foundation::{GetLastError, HWND, LPARAM, WPARAM},
+    Foundation::{GetLastError, BOOL, HWND, LPARAM, WPARAM},
     System::Threading::{AttachThreadInput, GetCurrentProcess, GetCurrentThreadId},
     UI::{
         Input::KeyboardAndMouse::{GetActiveWindow, SetActiveWindow, VK_CONTROL, VK_R},
@@ -68,10 +68,10 @@ unsafe fn force_foreground_window(hwnd: HWND) {
     let window_thread_process_id =
         GetWindowThreadProcessId(GetForegroundWindow(), Some(std::ptr::null_mut()));
     const CONST_SW_SHOW: i32 = 5;
-    if AttachThreadInput(current_thread_id, window_thread_process_id, true).as_bool() {
+    if AttachThreadInput(current_thread_id, window_thread_process_id, BOOL(1)).as_bool() {
         let _ = BringWindowToTop(hwnd);
         ShowWindow(hwnd, SHOW_WINDOW_CMD(CONST_SW_SHOW));
-        AttachThreadInput(current_thread_id, window_thread_process_id, false);
+        AttachThreadInput(current_thread_id, window_thread_process_id, BOOL(0));
     }
 }
 
