@@ -1,13 +1,23 @@
-use std::ptr::{null, null_mut};
+use std::{
+    mem::size_of,
+    ptr::{null, null_mut},
+};
 
 use priomutex::MutexGuard;
 
 use windows::Win32::{
     Foundation::{GetLastError, BOOL, HWND, LPARAM, POINT, WPARAM},
     System::Threading::{AttachThreadInput, GetCurrentThreadId, GetThreadId},
-    UI::WindowsAndMessaging::{
-        BringWindowToTop, DispatchMessageW, GetForegroundWindow, GetWindowThreadProcessId,
-        PeekMessageW, ShowWindow, TranslateMessage, MSG, PM_REMOVE, SHOW_WINDOW_CMD,
+    UI::{
+        Input::KeyboardAndMouse::{
+            SendInput, INPUT, INPUT_0, INPUT_KEYBOARD, KEYBDINPUT, KEYBD_EVENT_FLAGS,
+            KEYEVENTF_KEYUP, VK_CONTROL, VK_LWIN, VK_R,
+        },
+        WindowsAndMessaging::{
+            BringWindowToTop, DispatchMessageW, GetForegroundWindow, GetMessageExtraInfo,
+            GetWindowThreadProcessId, PeekMessageW, SendMessageA, ShowWindow, TranslateMessage,
+            MSG, PM_REMOVE, SHOW_WINDOW_CMD, WM_KEYDOWN, WM_KEYUP, WM_SYSKEYDOWN, WM_SYSKEYUP,
+        },
     },
 };
 
@@ -93,5 +103,37 @@ unsafe fn force_foreground_window(hwnd: HWND) {
 pub fn run_macro(state: &mut MutexGuard<OSApp>) {
     unsafe {
         force_foreground_window(state.handles.target);
+
+        println!("SendMessageW: {:?}", GetLastError());
+        const CBSIZE: i32 = size_of::<INPUT>() as i32;
+        let extra_info = GetMessageExtraInfo().0.unsigned_abs();
+        let mut pinputs: &[INPUT] = &[
+            INPUT {
+                r#type: INPUT_KEYBOARD,
+                Anonymous: INPUT_0 {
+                    ki: KEYBDINPUT {
+                        wVk: VK_LWIN,
+                        dwFlags: KEYBD_EVENT_FLAGS(0),
+                        wScan: 1,
+                        time: 0,
+                        dwExtraInfo: extra_info,
+                    },
+                },
+            },
+            INPUT {
+                r#type: INPUT_KEYBOARD,
+                Anonymous: INPUT_0 {
+                    ki: KEYBDINPUT {
+                        wVk: VK_LWIN,
+                        dwFlags: KEYEVENTF_KEYUP,
+                        wScan: 1,
+                        time: 0,
+                        dwExtraInfo: extra_info,
+                    },
+                },
+            },
+        ];
+        SendInput(&mut pinputs, CBSIZE);
+        println!("SendInput: {:?}", GetLastError());
     }
 }
