@@ -53,7 +53,7 @@ pub fn update(state: &mut MutexGuard<OSApp>) {
     assert!(state.handles.app != state.handles.target);
 
     update_hwnd(state);
-    message_loop(state);
+    //message_loop(state);
 }
 
 fn message_loop(state: &mut MutexGuard<OSApp>) {
