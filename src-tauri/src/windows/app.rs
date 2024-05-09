@@ -1,13 +1,13 @@
-use std::ptr::null_mut;
+use std::ptr::{null, null_mut};
 
 use priomutex::MutexGuard;
 
 use windows::Win32::{
-    Foundation::{GetLastError, BOOL, HWND},
-    System::Threading::{AttachThreadInput, GetCurrentThreadId},
+    Foundation::{GetLastError, BOOL, HWND, LPARAM, POINT, WPARAM},
+    System::Threading::{AttachThreadInput, GetCurrentThreadId, GetThreadId},
     UI::WindowsAndMessaging::{
-        BringWindowToTop, GetForegroundWindow, GetWindowThreadProcessId, ShowWindow,
-        SHOW_WINDOW_CMD,
+        BringWindowToTop, DispatchMessageW, GetForegroundWindow, GetWindowThreadProcessId,
+        PeekMessageW, ShowWindow, TranslateMessage, MSG, PM_REMOVE, SHOW_WINDOW_CMD,
     },
 };
 
@@ -24,12 +24,23 @@ pub struct WinHandles {
 pub struct OSApp {
     pub initialized: bool,
     pub handles: WinHandles,
+    pub msg: MSG,
 }
 impl App for OSApp {
     fn new() -> Self {
         Self {
             initialized: false,
             handles: WinHandles::default(),
+            msg: MSG {
+                hwnd: HWND::default(),
+                message: 0,
+                wParam: WPARAM(0),
+                lParam: LPARAM(0),
+                time: 0,
+                pt: POINT {
+                    ..Default::default()
+                },
+            },
         }
     }
 
@@ -39,12 +50,31 @@ impl App for OSApp {
 }
 
 pub fn update(state: &mut MutexGuard<OSApp>) {
+    assert!(state.handles.app != state.handles.target);
+
     update_hwnd(state);
+    message_loop(state);
+}
+
+fn message_loop(state: &mut MutexGuard<OSApp>) {
+    unsafe {
+        if PeekMessageW(&mut state.msg, state.handles.app, 0, 0, PM_REMOVE).as_bool() {
+            TranslateMessage(&state.msg);
+            DispatchMessageW(&state.msg);
+        }
+    }
 }
 
 fn update_hwnd(state: &mut MutexGuard<OSApp>) {
     state.handles.prev = state.handles.curr;
     state.handles.curr = unsafe { GetForegroundWindow() };
+
+    if (state.handles.prev != state.handles.curr) {
+        println!(
+            "curr: {:?} prev: {:?}",
+            state.handles.curr, state.handles.prev
+        );
+    }
 
     if state.handles.curr != state.handles.app
         && state.handles.curr != state.handles.prev
@@ -52,7 +82,7 @@ fn update_hwnd(state: &mut MutexGuard<OSApp>) {
     {
         let prev = state.handles.target.clone();
         state.handles.target = state.handles.curr;
-        println!("Changed Target: {} to {}", state.handles.target.0, prev.0);
+        //println!("Changed Target: {} to {}", state.handles.target.0, prev.0);
     }
 }
 
@@ -60,8 +90,9 @@ fn update_hwnd(state: &mut MutexGuard<OSApp>) {
 /// Source: https://stackoverflow.com/a/59659421/17763366
 unsafe fn force_foreground_window(hwnd: HWND) {
     let current_thread_id = GetCurrentThreadId();
-    let window_thread_process_id =
-        GetWindowThreadProcessId(GetForegroundWindow(), Some(null_mut()));
+    println!("current_thread_id: {:?}", current_thread_id);
+    let window_thread_process_id = GetWindowThreadProcessId(hwnd, Some(null_mut()));
+    println!("window_thread_process_id: {:?}", window_thread_process_id);
     const CONST_SW_SHOW: i32 = 5;
     if AttachThreadInput(current_thread_id, window_thread_process_id, BOOL(1)).as_bool() {
         let _ = BringWindowToTop(hwnd);

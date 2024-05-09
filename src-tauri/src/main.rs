@@ -8,6 +8,7 @@ pub(crate) mod macos;
 #[cfg(windows)]
 pub(crate) mod windows;
 
+use ::windows::Win32::Foundation::HWND;
 use app::ThreadPriority;
 #[cfg(target_os = "linux")]
 use linux as os;
@@ -56,6 +57,9 @@ fn init<R: Runtime>(_window: tauri::Window<R>, state: State<'_, AppState>) -> Re
         return Err("App already initialized.".to_owned());
     } else {
         init_lock.initialized = true;
+        if cfg!(windows) {
+            init_lock.handles.app = HWND(_window.hwnd().unwrap().0);
+        }
         println!("App Initialized.");
     }
 
