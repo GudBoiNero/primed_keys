@@ -1,4 +1,3 @@
-#![allow(unused_doc_comments)]
 // Prevents additional console window on Windows in release, DO NOT REMOVE!!
 #![cfg_attr(not(debug_assertions), windows_subsystem = "windows")]
 
@@ -9,7 +8,6 @@ pub(crate) mod macos;
 #[cfg(windows)]
 pub(crate) mod windows;
 
-use ::windows::Win32::Foundation::HWND;
 use app::ThreadPriority;
 #[cfg(target_os = "linux")]
 use linux as os;
@@ -24,7 +22,7 @@ use crate::app::App;
 use os::app::OSApp;
 use priomutex::Mutex;
 use std::{sync::Arc, thread};
-use tauri::{Manager, Runtime, State};
+use tauri::{Runtime, State};
 
 pub struct AppState(pub Arc<Mutex<OSApp>>);
 impl AppState {
@@ -59,7 +57,7 @@ fn init<R: Runtime>(_window: tauri::Window<R>, state: State<'_, AppState>) -> Re
     } else {
         init_lock.initialized = true;
         if cfg!(windows) {
-            init_lock.handles.app = HWND(_window.hwnd().unwrap().0);
+            init_lock.handles.app = ::windows::Win32::Foundation::HWND(_window.hwnd().unwrap().0);
         }
         println!("App Initialized.");
     }

@@ -5,15 +5,25 @@ use std::{
 
 use priomutex::MutexGuard;
 
-use windows::Win32::{
-    Foundation::{BOOL, HWND, LPARAM, POINT, WPARAM},
-    System::Threading::{AttachThreadInput, GetCurrentThreadId},
-    UI::{
-        Input::KeyboardAndMouse::{SendInput, INPUT},
-        WindowsAndMessaging::{
-            BringWindowToTop, DispatchMessageW, GetForegroundWindow, GetMessageExtraInfo,
-            GetMessageW, GetWindowThreadProcessId, PeekMessageW, ShowWindow, TranslateMessage, MSG,
-            PM_REMOVE, SHOW_WINDOW_CMD,
+use windows::{
+    core::PCSTR,
+    Win32::{
+        Foundation::{BOOL, HMODULE, HWND, LPARAM, LRESULT, POINT, WPARAM},
+        System::{
+            LibraryLoader::{
+                GetModuleHandleExA, GET_MODULE_HANDLE_EX_FLAG_FROM_ADDRESS,
+                GET_MODULE_HANDLE_EX_FLAG_UNCHANGED_REFCOUNT,
+            },
+            Threading::{AttachThreadInput, GetCurrentThreadId},
+        },
+        UI::{
+            Input::KeyboardAndMouse::{SendInput, INPUT},
+            WindowsAndMessaging::{
+                BringWindowToTop, DispatchMessageW, GetForegroundWindow, GetMessageExtraInfo,
+                GetMessageW, GetWindowThreadProcessId, PeekMessageW, SetWindowsHookExA, ShowWindow,
+                TranslateMessage, UnhookWindowsHookEx, HHOOK, MSG, PM_REMOVE, SHOW_WINDOW_CMD,
+                WH_KEYBOARD_LL, WINDOWS_HOOK_ID,
+            },
         },
     },
 };
@@ -31,12 +41,25 @@ pub struct WinHandles {
 pub struct OSApp {
     pub initialized: bool,
     pub handles: WinHandles,
+    pub hook_id: HHOOK,
     pub msg: MSG,
 }
 impl App for OSApp {
     fn new() -> Self {
+        let hook_id = unsafe {
+            let hmodule: &mut HMODULE = &mut HMODULE(0);
+            let _ = GetModuleHandleExA(
+                GET_MODULE_HANDLE_EX_FLAG_FROM_ADDRESS
+                    | GET_MODULE_HANDLE_EX_FLAG_UNCHANGED_REFCOUNT,
+                PCSTR(null()),
+                hmodule,
+            );
+            SetWindowsHookExA(WH_KEYBOARD_LL, Some(wndproc), *hmodule, 0).unwrap()
+        };
+
         Self {
             initialized: false,
+            hook_id,
             handles: WinHandles::default(),
             msg: MSG {
                 hwnd: HWND(0),
@@ -53,6 +76,14 @@ impl App for OSApp {
 
     fn initialized(&self) -> bool {
         self.initialized
+    }
+}
+
+impl Drop for OSApp {
+    fn drop(&mut self) {
+        unsafe {
+            let _ = UnhookWindowsHookEx(self.hook_id);
+        };
     }
 }
 
@@ -121,4 +152,9 @@ pub fn get_inputs(state: &mut MutexGuard<OSApp>) -> Box<[INPUT]> {
     let _extra_info = unsafe { GetMessageExtraInfo().0.unsigned_abs() };
 
     Box::new([])
+}
+
+extern "system" fn wndproc(code: i32, wparam: WPARAM, lparam: LPARAM) -> LRESULT {
+    println!("wndproc: ({:?}, {:?}, {:?})", code, wparam, lparam);
+    LRESULT(0)
 }
