@@ -1,22 +1,20 @@
-use std::{
-    mem::size_of,
-    ptr::{null, null_mut},
-};
+use std::{mem::size_of, ptr::null_mut};
 
 use priomutex::MutexGuard;
 
 use windows::Win32::{
-    Foundation::{GetLastError, BOOL, HWND, LPARAM, POINT, WPARAM},
-    System::Threading::{AttachThreadInput, GetCurrentThreadId, GetThreadId},
+    Foundation::{GetLastError, BOOL, HMODULE, HWND, LPARAM, LRESULT, POINT, WPARAM},
+    System::Threading::{AttachThreadInput, GetCurrentThreadId},
     UI::{
         Input::KeyboardAndMouse::{
             SendInput, INPUT, INPUT_0, INPUT_KEYBOARD, KEYBDINPUT, KEYBD_EVENT_FLAGS,
-            KEYEVENTF_KEYUP, VK_CONTROL, VK_LWIN, VK_R,
+            KEYEVENTF_KEYUP, VK_LWIN,
         },
         WindowsAndMessaging::{
             BringWindowToTop, DispatchMessageW, GetForegroundWindow, GetMessageExtraInfo,
-            GetWindowThreadProcessId, PeekMessageW, SendMessageA, ShowWindow, TranslateMessage,
-            MSG, PM_REMOVE, SHOW_WINDOW_CMD, WM_KEYDOWN, WM_KEYUP, WM_SYSKEYDOWN, WM_SYSKEYUP,
+            GetWindowThreadProcessId, PeekMessageW, SetWindowsHookExA, ShowWindow,
+            TranslateMessage, UnhookWindowsHookEx, HHOOK, MSG, PM_REMOVE, SHOW_WINDOW_CMD,
+            WINDOWS_HOOK_ID,
         },
     },
 };
@@ -34,13 +32,18 @@ pub struct WinHandles {
 pub struct OSApp {
     pub initialized: bool,
     pub handles: WinHandles,
+    pub hook_id: HHOOK,
     pub msg: MSG,
 }
 impl App for OSApp {
     fn new() -> Self {
+        let hook_id =
+            unsafe { SetWindowsHookExA(WINDOWS_HOOK_ID(0), Some(wndproc), HMODULE(0), 0).unwrap() };
+
         Self {
             initialized: false,
             handles: WinHandles::default(),
+            hook_id,
             msg: MSG {
                 hwnd: HWND::default(),
                 message: 0,
@@ -59,9 +62,18 @@ impl App for OSApp {
     }
 }
 
+impl Drop for OSApp {
+    fn drop(&mut self) {
+        unsafe {
+            let _ = UnhookWindowsHookEx(self.hook_id);
+        };
+    }
+}
+
 pub fn update(state: &mut MutexGuard<OSApp>) {
     assert!(state.handles.app != state.handles.target);
 
+    message_loop(state);
     update_hwnd(state);
 }
 
@@ -136,4 +148,8 @@ pub fn run_macro(state: &mut MutexGuard<OSApp>) {
         SendInput(&mut pinputs, CBSIZE);
         println!("SendInput: {:?}", GetLastError());
     }
+}
+
+extern "system" fn wndproc(code: i32, wparam: WPARAM, lparam: LPARAM) -> LRESULT {
+    LRESULT(0)
 }
