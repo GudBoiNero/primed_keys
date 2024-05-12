@@ -23,7 +23,7 @@ use crate::app::App;
 use os::app::OSApp;
 use priomutex::Mutex;
 use std::{sync::Arc, thread};
-use tauri::{Runtime, State};
+use tauri::{Manager, Runtime, State};
 
 pub struct AppState(pub Arc<Mutex<OSApp>>);
 impl AppState {
