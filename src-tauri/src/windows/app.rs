@@ -146,6 +146,6 @@ pub fn run_macro(state: &mut MutexGuard<OSApp>) {
 }
 
 extern "system" fn wndproc(code: i32, wparam: WPARAM, lparam: LPARAM) -> LRESULT {
-    println!("wndproc: ({:?}, {:?}, {:?})", code, wparam, lparam);
+    println!("wndproc: ({:? }, {:?}, {:?})", code, wparam, lparam);
     LRESULT(0)
 }
