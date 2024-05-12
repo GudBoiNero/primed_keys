@@ -57,7 +57,7 @@ impl App for OSApp {
 }
 
 pub fn update(state: &mut MutexGuard<OSApp>) {
-    /// The app handle should never be the same as the target handle
+    /// Even at initialization the app handle should never be the same as the target handle
     /// If it somehow is, and continues running, the program will not work correctly.
     assert!(
         state.handles.app != state.handles.target,
