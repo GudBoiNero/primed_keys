@@ -72,7 +72,7 @@ pub fn update(state: &mut MutexGuard<OSApp>) {
 
 fn message_loop(state: &mut MutexGuard<OSApp>) {
     unsafe {
-        let pm = GetMessageW(&mut state.msg, state.handles.app, 0, 0);
+        let pm = PeekMessageW(&mut state.msg, state.handles.app, 0, 0, PM_REMOVE);
         if pm.as_bool() {
             println!("Message Loop");
             TranslateMessage(&state.msg);
