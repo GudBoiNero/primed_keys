@@ -1,20 +1,29 @@
-use std::{mem::size_of, ptr::null_mut};
+use std::{
+    mem::size_of,
+    ptr::{null, null_mut},
+};
 
 use priomutex::MutexGuard;
 
-use windows::Win32::{
-    Foundation::{GetLastError, BOOL, HMODULE, HWND, LPARAM, LRESULT, POINT, WPARAM},
-    System::Threading::{AttachThreadInput, GetCurrentThreadId},
-    UI::{
-        Input::KeyboardAndMouse::{
-            SendInput, INPUT, INPUT_0, INPUT_KEYBOARD, KEYBDINPUT, KEYBD_EVENT_FLAGS,
-            KEYEVENTF_KEYUP, VK_LWIN,
+use windows::{
+    core::PCSTR,
+    Win32::{
+        Foundation::{GetLastError, BOOL, HMODULE, HWND, LPARAM, LRESULT, POINT, WPARAM},
+        System::{
+            LibraryLoader::{GetModuleHandleExA, GET_MODULE_HANDLE_EX_FLAG_FROM_ADDRESS},
+            Threading::{AttachThreadInput, GetCurrentThreadId},
         },
-        WindowsAndMessaging::{
-            BringWindowToTop, DispatchMessageW, GetForegroundWindow, GetMessageExtraInfo,
-            GetWindowThreadProcessId, PeekMessageW, SetWindowsHookExA, ShowWindow,
-            TranslateMessage, UnhookWindowsHookEx, HHOOK, MSG, PM_REMOVE, SHOW_WINDOW_CMD,
-            WINDOWS_HOOK_ID,
+        UI::{
+            Input::KeyboardAndMouse::{
+                SendInput, INPUT, INPUT_0, INPUT_KEYBOARD, KEYBDINPUT, KEYBD_EVENT_FLAGS,
+                KEYEVENTF_KEYUP, VK_LWIN,
+            },
+            WindowsAndMessaging::{
+                BringWindowToTop, DispatchMessageW, GetForegroundWindow, GetMessageExtraInfo,
+                GetWindowThreadProcessId, PeekMessageW, SetWindowsHookExA, ShowWindow,
+                TranslateMessage, UnhookWindowsHookEx, HHOOK, MSG, PM_REMOVE, SHOW_WINDOW_CMD,
+                WH_KEYBOARD_LL, WINDOWS_HOOK_ID,
+            },
         },
     },
 };
@@ -33,27 +42,23 @@ pub struct OSApp {
     pub initialized: bool,
     pub handles: WinHandles,
     pub hook_id: HHOOK,
-    pub msg: MSG,
 }
 impl App for OSApp {
     fn new() -> Self {
-        let hook_id =
-            unsafe { SetWindowsHookExA(WINDOWS_HOOK_ID(0), Some(wndproc), HMODULE(0), 0).unwrap() };
+        let hook_id = unsafe {
+            let hmodule: &mut HMODULE = &mut HMODULE(0);
+            let _ = GetModuleHandleExA(
+                GET_MODULE_HANDLE_EX_FLAG_FROM_ADDRESS,
+                PCSTR(null()),
+                hmodule,
+            );
+            SetWindowsHookExA(WH_KEYBOARD_LL, Some(wndproc), *hmodule, 0).unwrap()
+        };
 
         Self {
             initialized: false,
             handles: WinHandles::default(),
             hook_id,
-            msg: MSG {
-                hwnd: HWND::default(),
-                message: 0,
-                wParam: WPARAM(0),
-                lParam: LPARAM(0),
-                time: 0,
-                pt: POINT {
-                    ..Default::default()
-                },
-            },
         }
     }
 
@@ -73,17 +78,7 @@ impl Drop for OSApp {
 pub fn update(state: &mut MutexGuard<OSApp>) {
     assert!(state.handles.app != state.handles.target);
 
-    message_loop(state);
     update_hwnd(state);
-}
-
-fn message_loop(state: &mut MutexGuard<OSApp>) {
-    unsafe {
-        if PeekMessageW(&mut state.msg, state.handles.app, 0, 0, PM_REMOVE).as_bool() {
-            TranslateMessage(&state.msg);
-            DispatchMessageW(&state.msg);
-        }
-    }
 }
 
 fn update_hwnd(state: &mut MutexGuard<OSApp>) {
@@ -151,5 +146,6 @@ pub fn run_macro(state: &mut MutexGuard<OSApp>) {
 }
 
 extern "system" fn wndproc(code: i32, wparam: WPARAM, lparam: LPARAM) -> LRESULT {
+    println!("wndproc: ({:?}, {:?}, {:?})", code, wparam, lparam);
     LRESULT(0)
 }
