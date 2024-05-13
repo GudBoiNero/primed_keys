@@ -1,7 +1,4 @@
-use std::{
-    mem::size_of,
-    ptr::{null, null_mut},
-};
+use std::{mem::size_of, ptr::null_mut};
 
 use priomutex::MutexGuard;
 
@@ -20,9 +17,9 @@ use windows::{
             Input::KeyboardAndMouse::{SendInput, INPUT},
             WindowsAndMessaging::{
                 BringWindowToTop, DispatchMessageW, GetForegroundWindow, GetMessageExtraInfo,
-                GetMessageW, GetWindowThreadProcessId, PeekMessageW, SetWindowsHookExA, ShowWindow,
+                GetWindowThreadProcessId, PeekMessageW, SetWindowsHookExA, ShowWindow,
                 TranslateMessage, UnhookWindowsHookEx, HHOOK, MSG, PM_REMOVE, SHOW_WINDOW_CMD,
-                WH_KEYBOARD_LL, WINDOWS_HOOK_ID,
+                WH_KEYBOARD_LL,
             },
         },
     },
@@ -51,7 +48,7 @@ impl App for OSApp {
             let _ = GetModuleHandleExA(
                 GET_MODULE_HANDLE_EX_FLAG_FROM_ADDRESS
                     | GET_MODULE_HANDLE_EX_FLAG_UNCHANGED_REFCOUNT,
-                PCSTR(null()),
+                PCSTR(null_mut()),
                 hmodule,
             );
             SetWindowsHookExA(WH_KEYBOARD_LL, Some(wndproc), *hmodule, 0).unwrap()
