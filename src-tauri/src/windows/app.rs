@@ -1,4 +1,7 @@
-use std::{mem::size_of, ptr::null_mut};
+use std::{
+    mem::{self, size_of},
+    ptr::null_mut,
+};
 
 use priomutex::MutexGuard;
 
@@ -14,7 +17,7 @@ use windows::{
             Threading::{AttachThreadInput, GetCurrentThreadId},
         },
         UI::{
-            Input::KeyboardAndMouse::{SendInput, INPUT},
+            Input::KeyboardAndMouse::{GetKeyboardState, SendInput, INPUT},
             WindowsAndMessaging::{
                 BringWindowToTop, DispatchMessageW, GetForegroundWindow, GetMessageExtraInfo,
                 GetWindowThreadProcessId, PeekMessageW, SetWindowsHookExA, ShowWindow,
