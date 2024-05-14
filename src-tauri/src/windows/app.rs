@@ -41,49 +41,17 @@ pub struct WinHandles {
 pub struct OSApp {
     pub initialized: bool,
     pub handles: WinHandles,
-    pub hook_id: HHOOK,
-    pub msg: MSG,
 }
 impl App for OSApp {
     fn new() -> Self {
-        let hook_id = unsafe {
-            let hmodule: &mut HMODULE = &mut HMODULE(0);
-            let _ = GetModuleHandleExA(
-                GET_MODULE_HANDLE_EX_FLAG_FROM_ADDRESS
-                    | GET_MODULE_HANDLE_EX_FLAG_UNCHANGED_REFCOUNT,
-                PCSTR(null_mut()),
-                hmodule,
-            );
-            SetWindowsHookExA(WH_KEYBOARD_LL, Some(wndproc), *hmodule, 0).unwrap()
-        };
-
         Self {
             initialized: false,
-            hook_id,
             handles: WinHandles::default(),
-            msg: MSG {
-                hwnd: HWND(0),
-                message: 0,
-                wParam: WPARAM(0),
-                lParam: LPARAM(0),
-                time: 0,
-                pt: POINT {
-                    ..Default::default()
-                },
-            },
         }
     }
 
     fn initialized(&self) -> bool {
         self.initialized
-    }
-}
-
-impl Drop for OSApp {
-    fn drop(&mut self) {
-        unsafe {
-            let _ = UnhookWindowsHookEx(self.hook_id);
-        };
     }
 }
 
@@ -97,19 +65,7 @@ pub fn update(state: &mut MutexGuard<OSApp>) {
         state.handles.target
     );
 
-    message_loop(state);
     update_hwnd(state);
-}
-
-fn message_loop(state: &mut MutexGuard<OSApp>) {
-    unsafe {
-        let pm = PeekMessageW(&mut state.msg, state.handles.app, 0, 0, PM_REMOVE);
-        if pm.as_bool() {
-            println!("Message Loop");
-            TranslateMessage(&state.msg);
-            DispatchMessageW(&state.msg);
-        }
-    }
 }
 
 fn update_hwnd(state: &mut MutexGuard<OSApp>) {
@@ -152,9 +108,4 @@ pub fn get_inputs(state: &mut MutexGuard<OSApp>) -> Box<[INPUT]> {
     let _extra_info = unsafe { GetMessageExtraInfo().0.unsigned_abs() };
 
     Box::new([])
-}
-
-extern "system" fn wndproc(code: i32, wparam: WPARAM, lparam: LPARAM) -> LRESULT {
-    println!("wndproc: ({:?}, {:?}, {:?})", code, wparam, lparam);
-    LRESULT(0)
 }
