@@ -6,18 +6,24 @@ authors = ["GudBoiNero"]
 edition = "2021"
 
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
-
 [build-dependencies]
 tauri-build = { version = "1", features = [] }
 
 [dependencies]
 tauri = { version = "1", features = ["shell-open"] }
+tauri-build = { version = "1.5.1" }
+priomutex = { version = "0.3.1" }
 serde = { version = "1", features = ["derive"] }
 serde_json = "1"
 
 [dependencies.windows]
 version = "0.54"
-features = ["Win32_UI_WindowsAndMessaging"]
+features = [
+    "Win32_UI_WindowsAndMessaging",
+    "Win32_UI_Input_KeyboardAndMouse",
+    "Win32_System_Threading",
+    "Win32_System_LibraryLoader",
+]
 
 [features]
 # This feature is used for production builds or when a dev server is not specified, DO NOT REMOVE!!
