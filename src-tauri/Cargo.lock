@@ -1937,19 +1937,12 @@ checksum = "925383efa346730478fb4838dbe9137d2a47675ad789c546d150a6e1dd4ab31c"
 name = "primed_keys"
 version = "0.0.0"
 dependencies = [
- "priomutex",
  "serde",
  "serde_json",
  "tauri",
  "tauri-build",
  "windows 0.54.0",
 ]
-
-[[package]]
-name = "priomutex"
-version = "0.3.1"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "31c5f30db220cf084f346c232042cc79bb6aa7de680c5d15db17351f3aa03f20"
 
 [[package]]
 name = "proc-macro-crate"
