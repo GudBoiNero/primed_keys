@@ -43,7 +43,7 @@ fn run_macro(_name: String, _state: State<AppState>) -> Result<(), ()> {
     };
     let mut state = lock;
 
-    os::app::run_macro(&mut state);
+    os::app::run_macro(&mut state, _name);
 
     Ok(())
 }
