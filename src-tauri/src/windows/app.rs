@@ -12,14 +12,14 @@ use windows::Win32::{
     System::Threading::{AttachThreadInput, GetCurrentThreadId},
     UI::{
         Input::KeyboardAndMouse::{
-            GetAsyncKeyState, SendInput, INPUT, VIRTUAL_KEY, VK_ADD, VK_BACK, VK_CAPITAL,
-            VK_CONTROL, VK_DECIMAL, VK_DELETE, VK_DIVIDE, VK_DOWN, VK_END, VK_ESCAPE, VK_F1,
-            VK_F10, VK_F11, VK_F12, VK_F2, VK_F3, VK_F4, VK_F5, VK_F6, VK_F7, VK_F8, VK_F9,
-            VK_HOME, VK_INSERT, VK_LBUTTON, VK_LEFT, VK_MBUTTON, VK_MENU, VK_MULTIPLY, VK_NEXT,
-            VK_NUMPAD0, VK_NUMPAD1, VK_NUMPAD2, VK_NUMPAD3, VK_NUMPAD4, VK_NUMPAD5, VK_NUMPAD6,
-            VK_NUMPAD7, VK_NUMPAD8, VK_NUMPAD9, VK_PAUSE, VK_PRIOR, VK_RBUTTON, VK_RETURN,
-            VK_RIGHT, VK_SEPARATOR, VK_SHIFT, VK_SPACE, VK_SUBTRACT, VK_TAB, VK_UP, VK_XBUTTON1,
-            VK_XBUTTON2,
+            GetAsyncKeyState, SendInput, INPUT, INPUT_0, INPUT_TYPE, KEYBDINPUT, KEYBD_EVENT_FLAGS,
+            KEYEVENTF_EXTENDEDKEY, VIRTUAL_KEY, VK_ADD, VK_BACK, VK_CAPITAL, VK_CONTROL,
+            VK_DECIMAL, VK_DELETE, VK_DIVIDE, VK_DOWN, VK_END, VK_ESCAPE, VK_F1, VK_F10, VK_F11,
+            VK_F12, VK_F2, VK_F3, VK_F4, VK_F5, VK_F6, VK_F7, VK_F8, VK_F9, VK_HOME, VK_INSERT,
+            VK_LBUTTON, VK_LEFT, VK_MBUTTON, VK_MENU, VK_MULTIPLY, VK_NEXT, VK_NUMPAD0, VK_NUMPAD1,
+            VK_NUMPAD2, VK_NUMPAD3, VK_NUMPAD4, VK_NUMPAD5, VK_NUMPAD6, VK_NUMPAD7, VK_NUMPAD8,
+            VK_NUMPAD9, VK_PAUSE, VK_PRIOR, VK_RBUTTON, VK_RETURN, VK_RIGHT, VK_SEPARATOR,
+            VK_SHIFT, VK_SPACE, VK_SUBTRACT, VK_TAB, VK_UP, VK_XBUTTON1, VK_XBUTTON2,
         },
         WindowsAndMessaging::{
             BringWindowToTop, GetForegroundWindow, GetMessageExtraInfo, GetWindowThreadProcessId,
@@ -99,18 +99,45 @@ pub fn run_macro(state: &mut MutexGuard<OSApp>) {
         force_foreground_window(state.handles.target);
 
         const CBSIZE: i32 = size_of::<INPUT>() as i32;
-        let mut pinputs: &[INPUT] = &get_inputs(state);
+        let inputs = &get_inputs(state);
+        let mut pinputs: &[INPUT] = inputs;
         SendInput(&mut pinputs, CBSIZE);
     }
 }
 
-fn get_inputs(state: &mut MutexGuard<OSApp>) -> Box<[INPUT]> {
+fn make_inputs(state: &mut MutexGuard<OSApp>, keys: Vec<u16>) -> Vec<INPUT> {
     let _extra_info = unsafe { GetMessageExtraInfo().0.unsigned_abs() };
+    let mut inputs: Vec<INPUT> = vec![];
 
-    Box::new([])
+    keys.iter().for_each(|vk| {
+        let input = INPUT {
+            r#type: INPUT_TYPE { 0: 1 },
+            Anonymous: INPUT_0 {
+                ki: KEYBDINPUT {
+                    wVk: VIRTUAL_KEY(*vk as u16),
+                    wScan: 1,
+                    dwFlags: KEYEVENTF_EXTENDEDKEY,
+                    time: 0,
+                    dwExtraInfo: _extra_info,
+                },
+            },
+        };
+
+        inputs.push(input)
+    });
+
+    inputs
 }
 
-unsafe fn get_pressed_keys() -> Vec<i32> {
+/// Read from json config file and converts to `Vec<INPUT>`
+fn get_inputs(state: &mut MutexGuard<OSApp>) -> Vec<INPUT> {
+    let _extra_info = unsafe { GetMessageExtraInfo().0.unsigned_abs() };
+    let mut inputs: Vec<INPUT> = vec![];
+
+    inputs
+}
+/// Gets all `VIRTUAL_KEY`s pressed by the user currently.
+unsafe fn get_keys() -> Vec<i32> {
     let mut keys = vec![];
 
     for vk in 0x01..0xFE {
