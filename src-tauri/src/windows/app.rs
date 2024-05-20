@@ -66,12 +66,6 @@ pub fn update(state: &mut MutexGuard<OSApp>) {
     );
 
     update_hwnd(state);
-    unsafe {
-        println!();
-        for vk in get_pressed_keys() {
-            print!("{:?}: {:?}, ", vk, key_to_string(vk))
-        }
-    }
 }
 
 fn update_hwnd(state: &mut MutexGuard<OSApp>) {
